@@ -1,0 +1,120 @@
+package com.agrafast
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.agrafast.ui.navigation.NavItem
+import com.agrafast.ui.navigation.Screen
+import com.agrafast.ui.profil.ProfileScreen
+import com.agrafast.ui.screen.detector.DetectorScreen
+import com.agrafast.ui.screen.home.HomeScreen
+import com.agrafast.ui.theme.AgraFastTheme
+import com.agrafast.ui.usersplant.UsersPlantScreen
+
+@Composable
+fun AgraFastApp(
+  navController: NavHostController = rememberNavController()
+) {
+  val navItems = listOf(
+    NavItem(stringResource(R.string.home), Icons.Default.Home, Screen.Home),
+    NavItem(
+      stringResource(R.string.user_plant),
+      ImageVector.vectorResource(id = R.drawable.ic_plant),
+      Screen.UserPlant,
+    ),
+    NavItem(stringResource(R.string.profile), Icons.Default.Person, Screen.Profil),
+  )
+
+  val navBackStackEntry by navController.currentBackStackEntryAsState()
+  val currentRoute = navBackStackEntry?.destination?.route
+
+  Scaffold(
+    bottomBar = {
+      val isVisible = navItems.map { it.screen.route }.contains(currentRoute)
+
+      BottomBarComponent(navItems, isVisible, currentRoute) {
+        navController.navigate(it)
+      }
+    }
+  ) { innerPadding ->
+    NavHost(
+      navController = navController,
+      startDestination = Screen.Home.route, modifier = Modifier.padding(innerPadding)
+    ) {
+      composable(Screen.Home.route) {
+        HomeScreen()
+      }
+      composable(Screen.UserPlant.route) {
+        UsersPlantScreen()
+      }
+      composable(Screen.Profil.route) {
+        ProfileScreen()
+      }
+
+      composable(
+        route = Screen.DiseaseDetector.route,
+        arguments = listOf(navArgument("plant") { type = NavType.StringType })
+      ) {
+        val plantName = it.arguments?.getString("plant")!!
+        DetectorScreen(plantName)
+      }
+    }
+  }
+}
+
+@Composable
+fun BottomBarComponent(
+  navItems: List<NavItem>,
+  isVisible: Boolean,
+  currentRoute: String?,
+  onClickNavItem: (String) -> Unit
+) {
+  AnimatedVisibility(
+    visible = isVisible,
+    enter = slideInVertically(initialOffsetY = { fullHeight -> fullHeight }),
+    exit = slideOutVertically(targetOffsetY = { fullHeight -> fullHeight })
+  ) {
+    NavigationBar() {
+      navItems.forEach {
+        NavigationBarItem(
+          selected = currentRoute == it.screen.route,
+          onClick = { onClickNavItem(it.screen.route) },
+          label = {
+            Text(text = it.title, fontWeight = FontWeight.SemiBold)
+          },
+          icon = {
+            Icon(it.icon, contentDescription = "${it.title}_page")
+          }
+        )
+      }
+    }
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+  AgraFastTheme {
+    AgraFastApp()
+  }
+}
