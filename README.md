@@ -11,3 +11,10 @@
 - ui -> ui stufff
 - ui.navigation -> compose navigation stuff
 - ui.screen -> structered based the app feature screen
+
+
+
+
+
+## Progress Notes
+- navArgument still dummy

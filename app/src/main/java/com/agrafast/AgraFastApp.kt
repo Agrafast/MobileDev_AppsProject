@@ -7,7 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -16,20 +20,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
-import com.agrafast.ui.profil.ProfileScreen
+import com.agrafast.ui.screen.profil.ProfileScreen
+import com.agrafast.ui.screen.detail.PlantDetailScreen
 import com.agrafast.ui.screen.detector.DetectorScreen
 import com.agrafast.ui.screen.home.HomeScreen
 import com.agrafast.ui.theme.AgraFastTheme
-import com.agrafast.ui.usersplant.UsersPlantScreen
+import com.agrafast.ui.screen.usersplant.UsersPlantsScreen
 
 @Composable
 fun AgraFastApp(
@@ -57,26 +62,28 @@ fun AgraFastApp(
       }
     }
   ) { innerPadding ->
+    val viewModel: GlobalViewModel = viewModel()
     NavHost(
       navController = navController,
       startDestination = Screen.Home.route, modifier = Modifier.padding(innerPadding)
     ) {
       composable(Screen.Home.route) {
-        HomeScreen()
+        HomeScreen(navController, viewModel)
       }
       composable(Screen.UserPlant.route) {
-        UsersPlantScreen()
+        UsersPlantsScreen()
       }
       composable(Screen.Profil.route) {
         ProfileScreen()
       }
-
+      composable(route = Screen.PlantDetail.route) {
+        PlantDetailScreen(viewModel)
+      }
       composable(
         route = Screen.DiseaseDetector.route,
-        arguments = listOf(navArgument("plant") { type = NavType.StringType })
-      ) {
-        val plantName = it.arguments?.getString("plant")!!
-        DetectorScreen(plantName)
+
+        ) {
+        DetectorScreen(viewModel)
       }
     }
   }

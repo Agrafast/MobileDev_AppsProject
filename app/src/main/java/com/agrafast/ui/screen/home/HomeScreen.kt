@@ -2,7 +2,21 @@ package com.agrafast.ui.screen.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -29,14 +43,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.agrafast.R
 import com.agrafast.domain.model.DiseasePlant
 import com.agrafast.domain.model.TutorialPlant
+import com.agrafast.ui.navigation.Screen
+import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+  navController: NavController,
+  sharedViewModel: GlobalViewModel,
+) {
 //  Surface(
 //  ) {
   LazyColumn(
@@ -46,7 +68,12 @@ fun HomeScreen() {
     item { SectionTitle(text = stringResource(id = R.string.disease_detector_title), onClick = {}) }
     item { DiseaseDetectionComp() }
     item { SectionTitle(text = stringResource(id = R.string.plant_stuff_title), onClick = {}) }
-    item { PlantStuffComp() }
+    item {
+      PlantStuffComp(onClickItem = {
+        sharedViewModel.setCurrentTutorialPlant(it)
+        navController.navigate(route = Screen.PlantDetail.route)
+      })
+    }
   }
 //  }
 }
@@ -121,10 +148,12 @@ fun DiseaseDetectionComp() {
     LazyVerticalGrid(
       columns = GridCells.Fixed(2),
       horizontalArrangement = Arrangement.spacedBy(16.dp),
-      modifier = Modifier.fillMaxWidth()
-        .height(112.dp))
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(112.dp)
+    )
     {
-      items(plants.subList(1, plants.size), ) {
+      items(plants.subList(1, plants.size)) {
         DiseaseDetectionPlantCard(plant = it, height = 112.dp)
       }
     }
@@ -177,7 +206,7 @@ fun DiseaseDetectionPlantCard(plant: DiseasePlant, height: Dp) {
 
 
 @Composable
-fun PlantStuffComp() {
+fun PlantStuffComp(onClickItem: (TutorialPlant) -> Unit) {
   val plants = listOf(
     TutorialPlant("potato", "Kentang", painterResource(id = R.drawable.potato_banner)),
     TutorialPlant("maize", "Jagung", painterResource(id = R.drawable.maize_banner)),
@@ -198,7 +227,7 @@ fun PlantStuffComp() {
     contentPadding = PaddingValues(horizontal = 16.dp)
   ) {
     items(plantsA) {
-      PlantCard(plant = it)
+      PlantCard(plant = it, onClickItem = onClickItem)
     }
   }
   Spacer(modifier = Modifier.height(8.dp))
@@ -207,13 +236,13 @@ fun PlantStuffComp() {
     contentPadding = PaddingValues(horizontal = 16.dp)
   ) {
     items(plantsB) {
-      PlantCard(plant = it)
+      PlantCard(plant = it, onClickItem = onClickItem)
     }
   }
 }
 
 @Composable
-fun PlantCard(plant: TutorialPlant) {
+fun PlantCard(plant: TutorialPlant, onClickItem: (TutorialPlant) -> Unit) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
@@ -224,9 +253,18 @@ fun PlantCard(plant: TutorialPlant) {
       modifier = Modifier
         .size(160.dp)
         .clip(RoundedCornerShape(16.dp))
+        .clickable() {
+          onClickItem(plant)
+        }
     )
     Spacer(modifier = Modifier.height(4.dp))
     Text(
+      modifier = Modifier.clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() }
+      ) {
+        onClickItem(plant)
+      },
       text = plant.title,
       style = MaterialTheme.typography.bodyMedium,
     )
@@ -237,6 +275,7 @@ fun PlantCard(plant: TutorialPlant) {
 @Composable
 fun DefaultPreview() {
   AgraFastTheme {
-    HomeScreen()
+    val viewModel: GlobalViewModel = viewModel()
+    HomeScreen(rememberNavController(), viewModel)
   }
 }
