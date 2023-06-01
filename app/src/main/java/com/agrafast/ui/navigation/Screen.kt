@@ -5,6 +5,7 @@ sealed class Screen(val route: String) {
   object Detail : Screen("home/{plantId}") {
     fun to(plantId: Long) = "home/${plantId}"
   }
+
   object DiseaseDetector : Screen("detect/{plant}")
   object UserPlant : Screen("userplant")
   object Profil : Screen("profil")
