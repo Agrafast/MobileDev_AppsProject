@@ -3,4 +3,6 @@
   <string name="home">Beranda</string>
   <string name="profile">Profil</string>
   <string name="user_plant">Tanamanku</string>
+  <string name="disease_detector_title">Deteksi Penyakit</string>
+  <string name="plant_stuff_title">Tanam Keberkahan</string>
 </resources>

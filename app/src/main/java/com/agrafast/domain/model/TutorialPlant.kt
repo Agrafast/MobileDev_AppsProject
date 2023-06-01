@@ -1,4 +1,9 @@
 package com.agrafast.domain.model
 
-class TutorialPlant(name: String) : Plant(name) {
-}
+import androidx.compose.ui.graphics.painter.Painter
+
+data class TutorialPlant(
+  override val name: String,
+  override val title: String,
+  val image: Painter
+) : Plant

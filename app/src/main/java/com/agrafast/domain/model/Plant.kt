@@ -1,5 +1,6 @@
 package com.agrafast.domain.model
 
-abstract class Plant(
-  open val name: String
-)
+interface Plant {
+   val name: String
+   val title: String
+}
