@@ -1,6 +1,8 @@
 package com.agrafast.ui.screen.detector
 
+import com.agrafast.ui.screen.GlobalViewModel
+
 class DetectorScreen(
-  plantName: String
+  sharedViewModel: GlobalViewModel
 ) {
 }
