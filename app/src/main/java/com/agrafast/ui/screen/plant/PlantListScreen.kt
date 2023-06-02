@@ -25,7 +25,6 @@ import androidx.navigation.compose.rememberNavController
 import com.agrafast.R
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.screen.GlobalViewModel
-import com.agrafast.ui.screen.detail.PlantingTutorial
 import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
@@ -37,7 +36,7 @@ fun PlantListScreen(
   val plantsState = remember { mutableStateOf(sharedViewModel.tutorialPlant) }
   val searchValue = remember { mutableStateOf("") }
   Log.d("TAG", "PlantListScreen: Recomposition")
-  Surface() {
+  Surface {
     Column {
       SimpleActionBar(
         title = stringResource(id = R.string.plants),
@@ -70,7 +69,7 @@ fun SearchBox(value: String, onValueChange: (String) -> Unit) {
 }
 
 @Composable
-fun PlantList(){
+fun PlantList() {
 
 }
 

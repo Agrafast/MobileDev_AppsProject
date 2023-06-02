@@ -6,13 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.agrafast.R
 import com.agrafast.domain.model.Plant
-import dagger.hilt.android.lifecycle.HiltViewModel
 
-class GlobalViewModel :ViewModel() {
+class GlobalViewModel : ViewModel() {
   var tutorialPlant: Plant? by mutableStateOf(null)
     private set
 
-  fun setCurrentTutorialPlant(plant: Plant){
+  fun setCurrentTutorialPlant(plant: Plant) {
     tutorialPlant = plant
   }
 

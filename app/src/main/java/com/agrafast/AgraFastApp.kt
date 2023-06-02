@@ -21,7 +21,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -103,7 +102,7 @@ fun BottomBarComponent(
     enter = slideInVertically(initialOffsetY = { fullHeight -> fullHeight }),
     exit = slideOutVertically(targetOffsetY = { fullHeight -> fullHeight })
   ) {
-    NavigationBar() {
+    NavigationBar {
       navItems.forEach {
         NavigationBarItem(
           selected = currentRoute == it.screen.route,
