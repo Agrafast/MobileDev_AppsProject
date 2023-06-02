@@ -7,7 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiServiceProvider {
-  fun <T> getApiService(service : Class<T>) : T {
+  fun <T> getApiService(service: Class<T>): T {
     val logging = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
     val httpClient = OkHttpClient.Builder()
       .addInterceptor(logging)

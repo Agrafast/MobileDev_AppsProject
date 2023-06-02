@@ -8,5 +8,5 @@ import com.agrafast.data.local.entity.PlantEntity
 @Dao
 interface PlantDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  suspend fun insertToMyPlant(plants : PlantEntity)
+  suspend fun insertToMyPlant(plants: PlantEntity)
 }
