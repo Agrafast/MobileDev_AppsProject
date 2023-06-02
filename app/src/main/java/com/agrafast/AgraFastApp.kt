@@ -20,21 +20,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
-import com.agrafast.ui.screen.profil.ProfileScreen
+import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.screen.detail.PlantDetailScreen
 import com.agrafast.ui.screen.detector.DetectorScreen
 import com.agrafast.ui.screen.home.HomeScreen
-import com.agrafast.ui.theme.AgraFastTheme
+import com.agrafast.ui.screen.plant.PlantListScreen
+import com.agrafast.ui.screen.profil.ProfileScreen
 import com.agrafast.ui.screen.usersplant.UsersPlantsScreen
+import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
 fun AgraFastApp(
@@ -62,13 +64,16 @@ fun AgraFastApp(
       }
     }
   ) { innerPadding ->
-    val viewModel: GlobalViewModel = viewModel()
+    val viewModel: GlobalViewModel = hiltViewModel()
     NavHost(
       navController = navController,
       startDestination = Screen.Home.route, modifier = Modifier.padding(innerPadding)
     ) {
       composable(Screen.Home.route) {
         HomeScreen(navController, viewModel)
+      }
+      composable(Screen.PlantList.route) {
+        PlantListScreen(navController, viewModel)
       }
       composable(Screen.UserPlant.route) {
         UsersPlantsScreen()
@@ -79,10 +84,7 @@ fun AgraFastApp(
       composable(route = Screen.PlantDetail.route) {
         PlantDetailScreen(viewModel)
       }
-      composable(
-        route = Screen.DiseaseDetector.route,
-
-        ) {
+      composable(Screen.DiseaseDetector.route) {
         DetectorScreen(viewModel)
       }
     }

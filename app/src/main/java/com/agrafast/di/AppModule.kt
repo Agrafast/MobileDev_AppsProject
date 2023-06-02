@@ -2,6 +2,9 @@ package com.agrafast.di
 
 import android.content.Context
 import com.agrafast.App
+import com.agrafast.data.network.ApiServiceProvider
+import com.agrafast.data.network.service.PlantApiService
+import com.agrafast.domain.repository.PlantRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,4 +20,17 @@ object AppModule {
   fun provideAppContext(@ApplicationContext app: Context): App {
     return app as App
   }
+
+  @Provides
+  @Singleton
+  fun providePlantApiService(): PlantApiService {
+    return ApiServiceProvider.getApiService(PlantApiService::class.java)
+  }
+
+  @Provides
+  @Singleton
+  fun providePlantRepository(
+    plantApiService: PlantApiService,
+//    dataStore: DataStore
+  ): PlantRepository = PlantRepository(plantApiService)
 }

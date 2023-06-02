@@ -38,11 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.agrafast.domain.model.TutorialPlant
+import com.agrafast.domain.model.Plant
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
@@ -50,7 +51,7 @@ import com.agrafast.ui.theme.AgraFastTheme
 fun PlantDetailScreen(
   sharedViewModel: GlobalViewModel,
 ) {
-  val plant: TutorialPlant = sharedViewModel.tutorialPlant!!
+  val plant: Plant = sharedViewModel.tutorialPlant!!
   Surface {
     Column(
       modifier = Modifier
@@ -62,7 +63,7 @@ fun PlantDetailScreen(
       // TODO -> Change to Network Image (AsyncImage)
       Image(
 
-        painter = plant.image,
+        painter = painterResource(id = plant.image),
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier
