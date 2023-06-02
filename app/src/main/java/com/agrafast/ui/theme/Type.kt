@@ -33,7 +33,8 @@ val Typography = Typography(
   titleLarge = TextStyle(
     fontFamily = Poppins,
     fontWeight = FontWeight.SemiBold,
-    fontSize = 20.sp,
+    fontSize = 22.sp,
+//    lineHeight = 28.sp,
     letterSpacing = 0.sp
   ),
   titleMedium = TextStyle(
@@ -71,11 +72,11 @@ val Typography = Typography(
     lineHeight = 20.sp,
     letterSpacing = 0.25.sp
   ),
-//  labelLarge = TextStyle(
-//    fontFamily = Nunito,
-//    fontWeight = FontWeight.SemiBold,
-//    fontSize = 16.sp,
+  labelLarge = TextStyle(
+    fontFamily = Nunito,
+    fontWeight = FontWeight.Bold,
+    fontSize = 16.sp,
 //    lineHeight = 22.sp,
-//    letterSpacing = 0.25.sp
-//  ),
+    letterSpacing = 0.25.sp
+  ),
 )
