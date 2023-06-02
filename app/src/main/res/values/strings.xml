@@ -5,4 +5,6 @@
   <string name="user_plant">Tanamanku</string>
   <string name="disease_detector_title">Deteksi Penyakit</string>
   <string name="plant_stuff_title">Tanam Keberkahan</string>
+    <string name="plants">Tanaman</string>
+    <string name="search_plant">Cari tanaman</string>
 </resources>

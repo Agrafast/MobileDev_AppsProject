@@ -2,7 +2,8 @@ package com.agrafast.ui.navigation
 
 sealed class Screen(val route: String) {
   object Home : Screen("home")
-  object PlantDetail : Screen("home/{plantId}") {
+  object PlantList : Screen("plant")
+  object PlantDetail : Screen("plant/{plantId}") {
     fun to(plantId: Long) = "home/${plantId}"
   }
 

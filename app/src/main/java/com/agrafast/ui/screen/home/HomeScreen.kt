@@ -47,8 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.agrafast.R
-import com.agrafast.domain.model.DiseasePlant
-import com.agrafast.domain.model.TutorialPlant
+import com.agrafast.domain.model.Plant
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
@@ -65,14 +64,20 @@ fun HomeScreen(
     contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
   ) {
     item { UserInfo() }
-    item { SectionTitle(text = stringResource(id = R.string.disease_detector_title), onClick = {}) }
-    item { DiseaseDetectionComp() }
-    item { SectionTitle(text = stringResource(id = R.string.plant_stuff_title), onClick = {}) }
+    item { SectionTitle(text = stringResource(id = R.string.disease_detector_title)) }
+    item { DiseaseDetectionComp(_plants = sharedViewModel.getDummyDiseasePlants()) }
     item {
-      PlantStuffComp(onClickItem = {
-        sharedViewModel.setCurrentTutorialPlant(it)
-        navController.navigate(route = Screen.PlantDetail.route)
-      })
+      SectionTitle(
+        text = stringResource(id = R.string.plant_stuff_title), showMore = true,
+        onClickMore = { navController.navigate(Screen.PlantList.route) })
+    }
+    item {
+      PlantStuffComp(
+        plants = sharedViewModel.getDummyTutorialPlants(),
+        onClickItem = {
+          sharedViewModel.setCurrentTutorialPlant(it)
+          navController.navigate(route = Screen.PlantDetail.route)
+        })
     }
   }
 //  }
@@ -81,13 +86,13 @@ fun HomeScreen(
 @Composable
 fun UserInfo() {
   Row(
-    modifier = Modifier
-      .padding(horizontal = 16.dp)
+    modifier = Modifier.height(64.dp).padding(horizontal = 16.dp),
+    verticalAlignment = Alignment.CenterVertically
   ) {
     Box(
       modifier = Modifier
-        .background(color = MaterialTheme.colorScheme.background, CircleShape)
         .size(64.dp)
+        .background(color = MaterialTheme.colorScheme.surfaceVariant, CircleShape)
     ) {
       Icon(
         Icons.Outlined.Person,
@@ -117,29 +122,34 @@ fun UserInfo() {
 }
 
 @Composable
-fun SectionTitle(text: String, onClick: () -> Unit) {
+fun SectionTitle(text: String, showMore: Boolean = false, onClickMore: () -> Unit = {}) {
   Row(
     modifier = Modifier
-      .padding(horizontal = 16.dp)
-      .padding(top = 16.dp, bottom = 4.dp)
+      .fillMaxWidth()
+      .padding(end = 16.dp, start = 16.dp, top = 20.dp, bottom = 8.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.SpaceBetween
   ) {
     Text(
       text = text,
       style = MaterialTheme.typography.titleLarge,
+      maxLines = 1,
     )
+
+    if (showMore) {
+      Text(
+        modifier = Modifier.clickable(onClick = onClickMore),
+        text = "Selengkapnya",
+        style = MaterialTheme.typography.bodyMedium,
+        maxLines = 1,
+      )
+    }
   }
 }
 
 @Composable
-fun DiseaseDetectionComp() {
-
-  val _plants = listOf(
-    DiseasePlant("potato", "Kentang", painterResource(id = R.drawable.potato_banner)),
-    DiseasePlant("maize", "Jagung", painterResource(id = R.drawable.maize_banner)),
-    DiseasePlant("rice", "Padi", painterResource(id = R.drawable.rice_banner)),
-  )
+fun DiseaseDetectionComp(_plants: List<Plant>) {
   val plants = remember { _plants.shuffled() }
-
   Column(
     Modifier.padding(horizontal = 16.dp)
   ) {
@@ -161,7 +171,7 @@ fun DiseaseDetectionComp() {
 }
 
 @Composable
-fun DiseaseDetectionPlantCard(plant: DiseasePlant, height: Dp) {
+fun DiseaseDetectionPlantCard(plant: Plant, height: Dp) {
   Box(
     modifier = Modifier
       .height(height = height)
@@ -169,7 +179,7 @@ fun DiseaseDetectionPlantCard(plant: DiseasePlant, height: Dp) {
       .fillMaxWidth()
   ) {
     Image(
-      painter = plant.image,
+      painter = painterResource(id = plant.image),
       contentDescription = plant.title,
       contentScale = ContentScale.Crop,
       modifier = Modifier
@@ -206,19 +216,7 @@ fun DiseaseDetectionPlantCard(plant: DiseasePlant, height: Dp) {
 
 
 @Composable
-fun PlantStuffComp(onClickItem: (TutorialPlant) -> Unit) {
-  val plants = listOf(
-    TutorialPlant("potato", "Kentang", painterResource(id = R.drawable.potato_banner)),
-    TutorialPlant("maize", "Jagung", painterResource(id = R.drawable.maize_banner)),
-    TutorialPlant("rice", "Padi", painterResource(id = R.drawable.rice_banner)),
-    TutorialPlant("potato", "Kentang", painterResource(id = R.drawable.potato_banner)),
-    TutorialPlant("maize", "Jagung", painterResource(id = R.drawable.maize_banner)),
-    TutorialPlant("rice", "Padi", painterResource(id = R.drawable.rice_banner)),
-    TutorialPlant("potato", "Kentang", painterResource(id = R.drawable.potato_banner)),
-    TutorialPlant("maize", "Jagung", painterResource(id = R.drawable.maize_banner)),
-    TutorialPlant("rice", "Padi", painterResource(id = R.drawable.rice_banner)),
-  )
-
+fun PlantStuffComp(plants: List<Plant>, onClickItem: (Plant) -> Unit) {
   val halfNumber: Int = plants.size / 2
   val plantsA = plants.subList(0, halfNumber)
   val plantsB = plants.subList(halfNumber, plants.size)
@@ -242,18 +240,18 @@ fun PlantStuffComp(onClickItem: (TutorialPlant) -> Unit) {
 }
 
 @Composable
-fun PlantCard(plant: TutorialPlant, onClickItem: (TutorialPlant) -> Unit) {
+fun PlantCard(plant: Plant, onClickItem: (Plant) -> Unit) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     Image(
-      painter = plant.image,
+      painter = painterResource(id = plant.image),
       contentDescription = plant.title,
       contentScale = ContentScale.Crop,
       modifier = Modifier
         .size(160.dp)
         .clip(RoundedCornerShape(16.dp))
-        .clickable() {
+        .clickable {
           onClickItem(plant)
         }
     )
