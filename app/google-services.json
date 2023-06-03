@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "217317314357",
+    "firebase_url": "https://agrafast-2023-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "agrafast-2023",
+    "storage_bucket": "agrafast-2023.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217317314357:android:c9006e08e8aec1a8e1867c",
+        "android_client_info": {
+          "package_name": "com.agrafast"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "217317314357-r2u4c26vgvf6edtkv5l8ask846omehij.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDV59nGf3x1IY5pZzGzrzaroW6x_30SQA4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "217317314357-r2u4c26vgvf6edtkv5l8ask846omehij.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

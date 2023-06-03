@@ -1,11 +1,14 @@
 package com.agrafast.ui.screen.plant
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -13,8 +16,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,7 +28,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.agrafast.R
+import com.agrafast.domain.model.Plant
+import com.agrafast.ui.component.PlantList
+import com.agrafast.ui.component.PlantListItem
 import com.agrafast.ui.component.SimpleActionBar
+import com.agrafast.ui.component.StatusComp
+import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
@@ -32,21 +42,30 @@ fun PlantListScreen(
   navController: NavController,
   sharedViewModel: GlobalViewModel,
 ) {
-
-  val plantsState = remember { mutableStateOf(sharedViewModel.tutorialPlant) }
-  val searchValue = remember { mutableStateOf("") }
+  val plants = sharedViewModel.getDummyTutorialPlants(20)
+  var plantsState by remember { mutableStateOf(plants) }
+  var searchValue by remember { mutableStateOf("") }
   Log.d("TAG", "PlantListScreen: Recomposition")
   Surface {
     Column {
       SimpleActionBar(
         title = stringResource(id = R.string.plants),
         onBackClicked = { navController.navigateUp() })
-      Spacer(modifier = Modifier.width(8.dp))
+      Spacer(modifier = Modifier.height(8.dp))
       SearchBox(
-        value = searchValue.value, onValueChange = { searchValue.value = it },
+        value = searchValue,
+        onValueChange = {
+          searchValue = it
+          plantsState = plants.filter { plant ->
+            plant.title.contains(it, true) or plant.titleLatin.contains(it, true)
+          }
+        },
       )
-      Spacer(modifier = Modifier.width(8.dp))
-      PlantList()
+      Spacer(modifier = Modifier.height(16.dp))
+      PlantList(plantsState, onItemClick = {
+        sharedViewModel.setCurrentTutorialPlant(it)
+        navController.navigate(route = Screen.PlantDetail.route)
+      })
     }
   }
 }
@@ -68,10 +87,6 @@ fun SearchBox(value: String, onValueChange: (String) -> Unit) {
   )
 }
 
-@Composable
-fun PlantList() {
-
-}
 
 @Preview(showBackground = true)
 @Composable
