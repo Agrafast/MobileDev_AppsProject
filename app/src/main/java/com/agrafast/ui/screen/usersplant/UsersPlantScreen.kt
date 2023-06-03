@@ -35,7 +35,6 @@ fun UsersPlantsScreen(
   }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
