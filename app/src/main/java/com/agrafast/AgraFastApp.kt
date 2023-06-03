@@ -81,7 +81,7 @@ fun AgraFastApp(
         ProfileScreen()
       }
       composable(route = Screen.PlantDetail.route) {
-        PlantDetailScreen(navController,viewModel)
+        PlantDetailScreen(navController, viewModel)
       }
       composable(Screen.DiseaseDetector.route) {
         DetectorScreen(viewModel)

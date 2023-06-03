@@ -8,8 +8,8 @@ import androidx.compose.ui.text.withStyle
 import com.agrafast.domain.model.Plant
 
 class TextUtil {
-  companion object{
-    fun buildPlantNameWithLatin(plant: Plant) : AnnotatedString{
+  companion object {
+    fun buildPlantNameWithLatin(plant: Plant): AnnotatedString {
       val title = buildAnnotatedString {
         append(plant.title)
         append(" (")

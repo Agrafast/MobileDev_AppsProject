@@ -28,7 +28,7 @@ fun SimpleActionBar(
   content: (@Composable () -> Unit)? = {}
 ) {
   var rowModifier = Modifier.height(64.dp)
-  if(isBackgroundTransparent){
+  if (isBackgroundTransparent) {
     rowModifier = rowModifier.background(
       brush = Brush.verticalGradient(
         listOf(
@@ -46,7 +46,7 @@ fun SimpleActionBar(
     IconButton(onClick = onBackClicked) {
       Icon(
         imageVector = Icons.Default.ArrowBack, contentDescription = "Back",
-        tint =  if (isBackgroundTransparent) Color.White else Color.Unspecified
+        tint = if (isBackgroundTransparent) Color.White else Color.Unspecified
       )
     }
     Box(modifier = Modifier.fillMaxWidth()) {

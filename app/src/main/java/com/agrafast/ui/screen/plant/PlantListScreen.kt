@@ -1,14 +1,11 @@
 package com.agrafast.ui.screen.plant
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -28,11 +25,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.agrafast.R
-import com.agrafast.domain.model.Plant
 import com.agrafast.ui.component.PlantList
-import com.agrafast.ui.component.PlantListItem
 import com.agrafast.ui.component.SimpleActionBar
-import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme

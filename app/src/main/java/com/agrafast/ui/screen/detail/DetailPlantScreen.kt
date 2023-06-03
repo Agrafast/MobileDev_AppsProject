@@ -67,7 +67,7 @@ fun PlantDetailScreen(
         )
     ) {
       // TODO -> Change to Network Image (AsyncImage)
-      Box() {
+      Box {
         Image(
           painter = painterResource(id = plant.image),
           contentDescription = null,

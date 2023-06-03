@@ -2,16 +2,12 @@ package com.agrafast.ui.screen
 
 import android.util.Log
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import com.agrafast.R
 import com.agrafast.domain.model.Plant
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 
 class GlobalViewModel : ViewModel() {
   var tutorialPlant: Plant? by mutableStateOf(null)
@@ -23,7 +19,7 @@ class GlobalViewModel : ViewModel() {
     tutorialPlant = plant
   }
 
-  fun removeMyPlant(plant: Plant){
+  fun removeMyPlant(plant: Plant) {
     myPlants.value = myPlants.value.filter { it != plant }
     Log.d("TAG", "removeMyPlant: ${myPlants.value.size}")
   }

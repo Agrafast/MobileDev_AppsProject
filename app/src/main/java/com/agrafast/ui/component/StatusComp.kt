@@ -22,18 +22,21 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
-fun StatusComp(text: String = "Ups, nothing here." ) {
+fun StatusComp(text: String = "Ups, nothing here.") {
   val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.lottie_not_found))
-  val progress by animateLottieCompositionAsState(composition = composition,
+  val progress by animateLottieCompositionAsState(
+    composition = composition,
     iterations = LottieConstants.IterateForever
-    )
+  )
 
   Column(
-    modifier = Modifier.fillMaxSize().padding(bottom = 100.dp),
+    modifier = Modifier
+      .fillMaxSize()
+      .padding(bottom = 100.dp),
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,
 
-  ) {
+    ) {
     LottieAnimation(
       modifier = Modifier
         .height(192.dp)
