@@ -25,12 +25,15 @@ fun UsersPlantsScreen(
     val plantsState = sharedViewModel.myPlants.collectAsState()
     Column {
       SimpleTopBar(stringResource(id = R.string.my_plant))
-      PlantList(plantsState.value, onItemClick = {
-        sharedViewModel.setCurrentTutorialPlant(it)
-        navController.navigate(route = Screen.PlantDetail.route)
-      }, onDismiss = { plant ->
-        sharedViewModel.removeMyPlant(plant)
-      })
+      PlantList(
+        plants = plantsState.value,
+        onItemClick = {
+          sharedViewModel.setCurrentTutorialPlant(it)
+          navController.navigate(route = Screen.PlantDetail.route)
+        },
+        onDismiss = { plant ->
+          sharedViewModel.removeMyPlant(plant)
+        })
     }
   }
 }
