@@ -39,16 +39,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.agrafast.R
 import com.agrafast.domain.model.Plant
+import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
 fun PlantDetailScreen(
+  navController: NavController,
   sharedViewModel: GlobalViewModel,
 ) {
   val plant: Plant = sharedViewModel.tutorialPlant!!
@@ -61,16 +67,22 @@ fun PlantDetailScreen(
         )
     ) {
       // TODO -> Change to Network Image (AsyncImage)
-      Image(
-
-        painter = painterResource(id = plant.image),
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
-          .fillMaxWidth()
-          .height(320.dp)
-          .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-      )
+      Box() {
+        Image(
+          painter = painterResource(id = plant.image),
+          contentDescription = null,
+          contentScale = ContentScale.Crop,
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(320.dp)
+            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+        )
+        SimpleActionBar(
+          title = stringResource(id = R.string.plant_tutorial),
+          onBackClicked = { navController.navigateUp() },
+          isBackgroundTransparent = true
+        )
+      }
       Spacer(modifier = Modifier.height(12.dp))
       Text(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -179,6 +191,6 @@ fun ExpandableCard(
 fun DefaultPreview() {
   AgraFastTheme {
     val viewModel: GlobalViewModel = viewModel()
-    PlantDetailScreen(viewModel)
+    PlantDetailScreen(rememberNavController(), viewModel)
   }
 }

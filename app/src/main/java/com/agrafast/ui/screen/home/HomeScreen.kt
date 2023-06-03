@@ -73,7 +73,7 @@ fun HomeScreen(
     }
     item {
       PlantStuffComp(
-        plants = sharedViewModel.getDummyTutorialPlants(),
+        plants = sharedViewModel.getDummyTutorialPlants(10),
         onClickItem = {
           sharedViewModel.setCurrentTutorialPlant(it)
           navController.navigate(route = Screen.PlantDetail.route)

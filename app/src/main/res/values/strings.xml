@@ -7,4 +7,6 @@
   <string name="plant_stuff_title">Tanam Keberkahan</string>
     <string name="plants">Tanaman</string>
     <string name="search_plant">Cari tanaman</string>
+    <string name="my_plant">Tanamanku</string>
+    <string name="plant_tutorial">Cara bertanam</string>
 </resources>
