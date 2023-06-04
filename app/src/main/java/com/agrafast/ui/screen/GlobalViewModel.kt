@@ -12,11 +12,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class GlobalViewModel : ViewModel() {
   var tutorialPlant: Plant? by mutableStateOf(null)
     private set
+  var detectionPlant: Plant? by mutableStateOf(null)
+    private set
 
   var myPlants = MutableStateFlow(getDummyMyPlants(5))
 
   fun setCurrentTutorialPlant(plant: Plant) {
     tutorialPlant = plant
+  }
+  fun setCurrentDetectionPlant(plant: Plant) {
+    detectionPlant = plant
   }
 
   fun removeMyPlant(plant: Plant) {

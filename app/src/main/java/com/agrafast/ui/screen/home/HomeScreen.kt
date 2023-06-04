@@ -65,7 +65,14 @@ fun HomeScreen(
   ) {
     item { UserInfo() }
     item { SectionTitle(text = stringResource(id = R.string.disease_detector_title)) }
-    item { DiseaseDetectionComp(_plants = sharedViewModel.getDummyDiseasePlants()) }
+    item {
+      DiseaseDetectionComp(
+        plants = sharedViewModel.getDummyDiseasePlants(),
+        onClickItem = {
+          sharedViewModel.setCurrentDetectionPlant(it)
+          navController.navigate(route = Screen.PlantDiseaseDetection.route)
+        })
+    }
     item {
       SectionTitle(
         text = stringResource(id = R.string.plant_stuff_title), showMore = true,
@@ -150,12 +157,12 @@ fun SectionTitle(text: String, showMore: Boolean = false, onClickMore: () -> Uni
 }
 
 @Composable
-fun DiseaseDetectionComp(_plants: List<Plant>) {
-  val plants = remember { _plants.shuffled() }
+fun DiseaseDetectionComp(plants: List<Plant>, onClickItem: (Plant) -> Unit) {
+  val shuffledPlants = remember { plants.shuffled() }
   Column(
     Modifier.padding(horizontal = 16.dp)
   ) {
-    DiseaseDetectionPlantCard(plant = plants[0], height = 192.dp)
+    DiseaseDetectionPlantCard(plant = shuffledPlants[0], height = 192.dp, onClickItem = onClickItem)
     Spacer(modifier = Modifier.height(16.dp))
     LazyVerticalGrid(
       columns = GridCells.Fixed(2),
@@ -165,20 +172,23 @@ fun DiseaseDetectionComp(_plants: List<Plant>) {
         .height(112.dp)
     )
     {
-      items(plants.subList(1, plants.size)) {
-        DiseaseDetectionPlantCard(plant = it, height = 112.dp)
+      items(shuffledPlants.subList(1, plants.size)) {
+        DiseaseDetectionPlantCard(plant = it, height = 112.dp, onClickItem = onClickItem)
       }
     }
   }
 }
 
 @Composable
-fun DiseaseDetectionPlantCard(plant: Plant, height: Dp) {
+fun DiseaseDetectionPlantCard(plant: Plant, height: Dp, onClickItem: (Plant) -> Unit) {
   Box(
     modifier = Modifier
       .height(height = height)
       .clip(RoundedCornerShape(12.dp))
       .fillMaxWidth()
+      .clickable {
+        onClickItem(plant)
+      }
   ) {
     Image(
       painter = painterResource(id = plant.image),

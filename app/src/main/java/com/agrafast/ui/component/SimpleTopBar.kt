@@ -17,7 +17,7 @@ fun SimpleTopBar(title: String) {
   Box(
     modifier = Modifier
       .fillMaxWidth()
-      .height(48.dp),
+      .height(64.dp),
     contentAlignment = Alignment.Center
   ) {
     Text(
