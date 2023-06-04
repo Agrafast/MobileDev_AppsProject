@@ -30,11 +30,11 @@ import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.screen.detail.PlantDetailScreen
-import com.agrafast.ui.screen.detector.DetectorScreen
+import com.agrafast.ui.screen.detector.PlantDiseaseDetectionScreen
 import com.agrafast.ui.screen.home.HomeScreen
 import com.agrafast.ui.screen.plant.PlantListScreen
 import com.agrafast.ui.screen.profil.ProfileScreen
-import com.agrafast.ui.screen.usersplant.UsersPlantsScreen
+import com.agrafast.ui.screen.usersplant.UserPlantListScreen
 import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
@@ -46,7 +46,7 @@ fun AgraFastApp(
     NavItem(
       stringResource(R.string.user_plant),
       ImageVector.vectorResource(id = R.drawable.ic_plant),
-      Screen.UserPlant,
+      Screen.UserPlantList,
     ),
     NavItem(stringResource(R.string.profile), Icons.Default.Person, Screen.Profil),
   )
@@ -74,8 +74,8 @@ fun AgraFastApp(
       composable(Screen.PlantList.route) {
         PlantListScreen(navController, viewModel)
       }
-      composable(Screen.UserPlant.route) {
-        UsersPlantsScreen(navController, viewModel)
+      composable(Screen.UserPlantList.route) {
+        UserPlantListScreen(navController, viewModel)
       }
       composable(Screen.Profil.route) {
         ProfileScreen()
@@ -83,8 +83,8 @@ fun AgraFastApp(
       composable(route = Screen.PlantDetail.route) {
         PlantDetailScreen(navController, viewModel)
       }
-      composable(Screen.DiseaseDetector.route) {
-        DetectorScreen(viewModel)
+      composable(Screen.PlantDiseaseDetection.route) {
+        PlantDiseaseDetectionScreen(viewModel)
       }
     }
   }

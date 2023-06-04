@@ -17,7 +17,7 @@ import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
-fun UsersPlantsScreen(
+fun UserPlantListScreen(
   navController: NavController,
   sharedViewModel: GlobalViewModel,
 ) {
@@ -43,6 +43,6 @@ fun UsersPlantsScreen(
 fun DefaultPreview() {
   AgraFastTheme {
     val viewModel: GlobalViewModel = viewModel()
-    UsersPlantsScreen(rememberNavController(), viewModel)
+    UserPlantListScreen(rememberNavController(), viewModel)
   }
 }
