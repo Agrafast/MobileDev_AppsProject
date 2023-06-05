@@ -32,9 +32,9 @@ class GlobalViewModel : ViewModel() {
   // TODO From API
   fun getDummyDiseasePlants(): List<Plant> {
     return listOf(
-      Plant(name = "potato", title = "Kentang", image = R.drawable.potato_banner),
-      Plant(name = "maize", title = "Jagung", image = R.drawable.maize_banner),
-      Plant(name = "rice", title = "Padi", image = R.drawable.rice_banner),
+      Plant(id = "SN08zvXW5DmLHuxlC3mJ", name = "potato", title = "Kentang", image = R.drawable.potato_banner),
+      Plant(id = "XhafVgIsbocxmrelOJK8", name = "maize", title = "Jagung", image = R.drawable.maize_banner),
+      Plant(id = "dasr9Kae7uQhYc1GWwhC", name = "rice", title = "Padi", image = R.drawable.rice_banner),
     )
   }
 

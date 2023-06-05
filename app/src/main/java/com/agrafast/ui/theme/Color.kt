@@ -3,6 +3,10 @@ package com.agrafast.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val Gray100 = Color(0xFFF3F4F6)
+val Gray200 = Color(0xFFE2E8F0)
+val Gray400 = Color(0xFF94A3B8)
+val Gray600 = Color(0xFF4B5563)
+val Gray900 = Color(0xFF0F172A)
 
 val md_theme_light_primary = Color(0xFF725C00)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)

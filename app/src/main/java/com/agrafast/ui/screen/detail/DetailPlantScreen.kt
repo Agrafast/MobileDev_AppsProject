@@ -46,15 +46,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.agrafast.AppState
 import com.agrafast.R
 import com.agrafast.domain.model.Plant
+import com.agrafast.rememberAppState
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
 fun PlantDetailScreen(
-  navController: NavController,
+  appState: AppState,
   sharedViewModel: GlobalViewModel,
 ) {
   val plant: Plant = sharedViewModel.tutorialPlant!!
@@ -79,7 +81,7 @@ fun PlantDetailScreen(
         )
         SimpleActionBar(
           title = stringResource(id = R.string.plant_tutorial),
-          onBackClicked = { navController.navigateUp() },
+          onBackClicked = { appState.navController.navigateUp() },
           isBackgroundTransparent = true
         )
       }
@@ -191,6 +193,6 @@ fun ExpandableCard(
 fun DefaultPreview() {
   AgraFastTheme {
     val viewModel: GlobalViewModel = viewModel()
-    PlantDetailScreen(rememberNavController(), viewModel)
+    PlantDetailScreen(rememberAppState(), viewModel)
   }
 }

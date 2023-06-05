@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.agrafast.domain.UIState
 import com.agrafast.domain.model.Plant
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
@@ -70,7 +71,7 @@ fun PlantList(
       }
     }
   } else {
-    StatusComp()
+    StatusComp(UIState.Empty)
   }
 
 }

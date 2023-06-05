@@ -9,4 +9,5 @@
     <string name="search_plant">Cari tanaman</string>
     <string name="my_plant">Tanamanku</string>
     <string name="plant_tutorial">Cara bertanam</string>
+    <string name="no_camera_access">Aplikasi tidak memiliki akses kamera.</string>
 </resources>

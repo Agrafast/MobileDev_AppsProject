@@ -10,10 +10,16 @@ import com.agrafast.R
 
 // Set of Material typography styles to start with
 
-val Poppins = FontFamily(
-  Font(R.font.poppins_regular),
-  Font(R.font.poppins_medium, FontWeight.Medium),
-  Font(R.font.poppins_semibold, FontWeight.SemiBold),
+//val Poppins = FontFamily(
+//  Font(R.font.poppins_regular),
+//  Font(R.font.poppins_medium, FontWeight.Medium),
+//  Font(R.font.poppins_semibold, FontWeight.SemiBold),
+//)
+
+val Inter = FontFamily(
+  Font(R.font.inter_regular),
+  Font(R.font.inter_medium, FontWeight.Medium),
+  Font(R.font.inter_semibold, FontWeight.SemiBold),
 )
 val Nunito = FontFamily(
   Font(R.font.nunito_regular),
@@ -23,7 +29,7 @@ val Nunito = FontFamily(
 
 val Typography = Typography(
   displaySmall = TextStyle(
-    fontFamily = Poppins,
+    fontFamily = Inter,
     fontWeight = FontWeight.SemiBold,
     fontSize = 36.sp,
     lineHeight = 44.sp,
@@ -31,20 +37,20 @@ val Typography = Typography(
   ),
 
   titleLarge = TextStyle(
-    fontFamily = Poppins,
+    fontFamily = Inter,
     fontWeight = FontWeight.SemiBold,
     fontSize = 20.sp,
     letterSpacing = 0.sp
   ),
   titleMedium = TextStyle(
-    fontFamily = Poppins,
+    fontFamily = Inter,
     fontWeight = FontWeight.SemiBold,
     fontSize = 18.sp,
 //    lineHeight = 24.sp,
     letterSpacing = 0.15.sp
   ),
   titleSmall = TextStyle(
-    fontFamily = Poppins,
+    fontFamily = Inter,
     fontWeight = FontWeight.Medium,
     fontSize = 16.sp,
     lineHeight = 22.sp,
