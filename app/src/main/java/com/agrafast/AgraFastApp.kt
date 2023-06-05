@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -14,6 +15,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -30,7 +33,7 @@ import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.screen.detail.PlantDetailScreen
-import com.agrafast.ui.screen.detector.PlantDiseaseDetectionScreen
+import com.agrafast.ui.screen.detection.PlantDiseaseDetectionScreen
 import com.agrafast.ui.screen.home.HomeScreen
 import com.agrafast.ui.screen.plant.PlantListScreen
 import com.agrafast.ui.screen.profil.ProfileScreen
@@ -54,12 +57,29 @@ fun AgraFastApp(
   val navBackStackEntry by navController.currentBackStackEntryAsState()
   val currentRoute = navBackStackEntry?.destination?.route
 
+  // FAB Stuff
+  val showFab = remember { mutableStateOf(false) }
+  val fabOnclick = remember { mutableStateOf<(() -> Unit)?>(null) }
+  val fabContent = remember { mutableStateOf<@Composable () -> Unit>({}) }
+  val setFabBehavior : (Boolean, @Composable () -> Unit, () -> Unit) -> Unit  = {show, content, onClick ->
+    showFab.value = show
+    fabContent.value = content
+    fabOnclick.value = onClick
+  }
+
   Scaffold(
     bottomBar = {
       val isVisible = navItems.map { it.screen.route }.contains(currentRoute)
 
       BottomBarComponent(navItems, isVisible, currentRoute) {
         navController.navigate(it)
+      }
+    },
+    floatingActionButton = {
+      if (showFab.value) {
+        FloatingActionButton(onClick = { fabOnclick.value?.invoke() }) {
+          fabContent.value.invoke()
+        }
       }
     }
   ) { innerPadding ->
@@ -84,7 +104,10 @@ fun AgraFastApp(
         PlantDetailScreen(navController, viewModel)
       }
       composable(Screen.PlantDiseaseDetection.route) {
-        PlantDiseaseDetectionScreen(viewModel)
+        PlantDiseaseDetectionScreen(
+          viewModel,
+          setFabBehavior = setFabBehavior,
+        )
       }
     }
   }
