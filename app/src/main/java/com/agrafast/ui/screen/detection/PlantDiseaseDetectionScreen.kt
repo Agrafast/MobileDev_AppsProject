@@ -1,7 +1,10 @@
 package com.agrafast.ui.screen.detection
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -22,66 +25,109 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.agrafast.AppState
+import com.agrafast.BuildConfig
 import com.agrafast.R
 import com.agrafast.domain.UIState
 import com.agrafast.domain.model.Plant
 import com.agrafast.domain.model.PlantDisease
+import com.agrafast.rememberAppState
 import com.agrafast.ui.component.SimpleExpandable
 import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.screen.GlobalViewModel
+import com.agrafast.ui.theme.AgraFastTheme
 import com.agrafast.ui.theme.Gray200
-import com.agrafast.ui.theme.Gray600
 import com.agrafast.util.HEALTHY_NAME
-import com.agrafast.util.Helper
-import java.io.File
+import com.agrafast.util.createTempFile
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlantDiseaseDetectionScreen(
+  appState: AppState,
   sharedViewModel: GlobalViewModel,
   setFabBehavior: (Boolean, @Composable () -> Unit, () -> Unit) -> Unit
 ) {
   val context = LocalContext.current
   val viewModel: PlantDiseaseDetectionViewModel = hiltViewModel()
   viewModel.currentPlant = sharedViewModel.detectionPlant!!
+
+  // Camera and Gallery Launcher Stufff
+  val tempFile = context.createTempFile()
+  val tempFileUri: Uri = FileProvider.getUriForFile(
+    context,
+    BuildConfig.APPLICATION_ID,
+    tempFile
+  )
+  val cameraLauncher = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.TakePicture(),
+    onResult = {
+      if (it) {
+        viewModel.setCurrentImage(tempFile.toUri())
+      }
+    })
   val imagePickerLauncher = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.GetContent(),
     onResult = {
-      viewModel.setCurrentImage(Helper.createFileFromUri(it!!, context))
+      it?.let { viewModel.setCurrentImage(it) }
     })
+  val permissionLauncher = rememberLauncherForActivityResult(
+    ActivityResultContracts.RequestPermission()
+  ) {
+    if (!it) {
+      Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+    }
+  }
 
   // State
   val diseaseListState = viewModel.plantDiseaseListState.collectAsState()
   val predictedDiseaseState = viewModel.predictedDiseaseState.collectAsState()
   val currentImageState = viewModel.currentImage.collectAsState()
+  val cameraAllowed: MutableState<Boolean> = remember { mutableStateOf(false) }
 
   // SideEffects
   // Launch one time
   LaunchedEffect(Unit) {
     viewModel.getPlantDiseases()
+
+    // Check Permission 2 times
+    val permissionCheckResult =
+      ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+      cameraAllowed.value = true
+    } else {
+      permissionLauncher.launch(Manifest.permission.CAMERA)
+    }
   }
-  LaunchedEffect(currentImageState.value) {
+  DisposableEffect(currentImageState.value) {
     val showFab = currentImageState.value != null
     setFabBehavior(showFab, {
       Icon(
@@ -91,8 +137,13 @@ fun PlantDiseaseDetectionScreen(
         tint = Color.White
       )
     }, {
-      viewModel.getPredictionDisease()
+      viewModel.getPredictionDisease(context)
     })
+    // Hide FAB when composable cleared
+    onDispose {
+      setFabBehavior(false, {}, {})
+    }
+
   }
 
 
@@ -101,23 +152,40 @@ fun PlantDiseaseDetectionScreen(
   ) {
     LazyColumn() {
       item() {
-        PlantImageComp(imagePickerLauncher, currentImageState, onClear = {
-          viewModel.predictedDiseaseState.value = UIState.Default
-          viewModel.currentImage.value = null
-        })
+        val noCamAccessMessage = stringResource(id = R.string.no_camera_access)
+        PlantImageComp(
+          currentImage = currentImageState,
+          onGalleryClick = {
+            imagePickerLauncher.launch("image/*")
+          },
+          onCameraClick = {
+            val permissionCheckResult =
+              ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+            if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+              cameraLauncher.launch(tempFileUri)
+            } else {
+              appState.coroutineScope.launch {
+                appState.showSnackbar(message = noCamAccessMessage)
+              }
+            }
+          },
+          onClear = {
+            viewModel.predictedDiseaseState.value = UIState.Default
+            viewModel.currentImage.value = null
+          })
       }
       stickyHeader {
-          PlantDetailComp(viewModel.currentPlant)
+        PlantDetailComp(viewModel.currentPlant)
       }
       item {
         val showPredicted = predictedDiseaseState.value is UIState.Success<PlantDisease>
-        val showList = predictedDiseaseState.value !is UIState.Loading && diseaseListState.value is UIState.Success<List<PlantDisease>>
-        if(showPredicted){
+        val showList =
+          predictedDiseaseState.value is UIState.Default && diseaseListState.value is UIState.Success<List<PlantDisease>>
+        if (showPredicted) {
           PredictedDetailComp(predictedDiseaseState = predictedDiseaseState)
-        } else if(showList){
-          DiseaseListComp(diseaseListState = diseaseListState )
-        }
-        else {
+        } else if (showList) {
+          DiseaseListComp(diseaseListState = diseaseListState)
+        } else {
           val stateToShow =
             if (predictedDiseaseState.value is UIState.Default) diseaseListState.value else predictedDiseaseState.value
           StatusComp(state = stateToShow)
@@ -130,9 +198,10 @@ fun PlantDiseaseDetectionScreen(
 
 @Composable
 fun PlantImageComp(
-  imagePickerLauncher: ActivityResultLauncher<String>,
-  currentImage: State<File?>,
-  onClear: () -> Unit
+  currentImage: State<Uri?>,
+  onGalleryClick: () -> Unit,
+  onCameraClick: () -> Unit,
+  onClear: () -> Unit,
 ) {
   Surface(tonalElevation = 4.dp) {
     Box(
@@ -144,7 +213,7 @@ fun PlantImageComp(
     ) {
       if (currentImage.value != null) {
         AsyncImage(
-          model = currentImage.value!!.toUri(), contentDescription = "Citra tumbuhan",
+          model = currentImage.value, contentDescription = "Citra tumbuhan",
           modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop
         )
         Box(
@@ -173,20 +242,52 @@ fun PlantImageComp(
           verticalArrangement = Arrangement.Center,
           horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          Image(
-            modifier = Modifier
-              .alpha(0.5f)
-              .clickable {
-                imagePickerLauncher.launch("image/*")
-              },
-            painter = painterResource(id = R.drawable.image_placeholder),
-            contentDescription = "Citra tumbuhan",
-          )
           Text(
             "Pilih atau ambil citra.",
-            style = MaterialTheme.typography.labelLarge,
-            color = Gray600
+            style = MaterialTheme.typography.titleSmall,
           )
+          Spacer(modifier = Modifier.height(8.dp))
+          Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+          )
+          {
+            Surface(
+              shadowElevation = 4.dp,
+              tonalElevation = 4.dp,
+              shape = CircleShape,
+              modifier = Modifier
+                .clip(CircleShape)
+                .clickable { onGalleryClick() },
+            ) {
+              Image(
+                modifier = Modifier
+                  .padding(8.dp)
+                  .size(36.dp),
+                painter = painterResource(id = R.drawable.image_placeholder),
+                contentDescription = "Gallery",
+              )
+            }
+            Surface(
+              shadowElevation = 4.dp,
+              tonalElevation = 4.dp,
+              shape = CircleShape,
+              modifier = Modifier
+                .clip(CircleShape)
+                .clickable {
+                  onCameraClick()
+                },
+            ) {
+              Image(
+                modifier = Modifier
+                  .padding(8.dp)
+                  .size(36.dp),
+                painter = painterResource(id = R.drawable.ic_cam),
+                contentDescription = "Gallery",
+              )
+            }
+          }
+
+
         }
       }
 //
@@ -223,14 +324,15 @@ fun PlantDetailComp(plant: Plant) {
 }
 
 @Composable
-fun PredictedDetailComp(predictedDiseaseState: State<UIState<PlantDisease>>){
+fun PredictedDetailComp(predictedDiseaseState: State<UIState<PlantDisease>>) {
   Column(
     modifier = Modifier
       .fillMaxWidth()
       .padding(horizontal = 16.dp, vertical = 16.dp)
   ) {
-    val disease : PlantDisease = (predictedDiseaseState.value as UIState.Success<PlantDisease>).data!!
-    if(disease.name == HEALTHY_NAME){
+    val disease: PlantDisease =
+      (predictedDiseaseState.value as UIState.Success<PlantDisease>).data!!
+    if (disease.name == HEALTHY_NAME) {
       Text(
         "Tumbuhan ${disease.title_id}",
         style = MaterialTheme.typography.titleMedium,
@@ -249,18 +351,18 @@ fun PredictedDetailComp(predictedDiseaseState: State<UIState<PlantDisease>>){
         style = MaterialTheme.typography.bodyMedium,
       )
       Spacer(modifier = Modifier.height(8.dp))
-      SimpleExpandable(title = "Penyebab" , description = disease.cause, true)
+      SimpleExpandable(title = "Penyebab", description = disease.cause, true)
       Spacer(modifier = Modifier.height(8.dp))
-      SimpleExpandable(title = "Pengendalian" , description = disease.treatment )
+      SimpleExpandable(title = "Pengendalian", description = disease.treatment)
       Spacer(modifier = Modifier.height(8.dp))
-      SimpleExpandable(title = "Pengobatan" , description = disease.medicine)
+      SimpleExpandable(title = "Pengobatan", description = disease.medicine)
     }
 
   }
 }
 
 @Composable
-fun DiseaseListComp(diseaseListState: State<UIState<List<PlantDisease>>>){
+fun DiseaseListComp(diseaseListState: State<UIState<List<PlantDisease>>>) {
   Column(
     modifier = Modifier
       .fillMaxWidth()
@@ -281,11 +383,12 @@ fun DiseaseListComp(diseaseListState: State<UIState<List<PlantDisease>>>){
   }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun DefaultPreview() {
-//  AgraFastTheme {
-//    val viewModel: GlobalViewModel = viewModel()
-//    PlantDiseaseDetectionScreen(viewModel, {}, {})
-//  }
-//}
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+  AgraFastTheme {
+    val viewModel: GlobalViewModel = viewModel()
+    val func: (Boolean, @Composable () -> Unit, () -> Unit) -> Unit = { _, _, _ -> }
+    PlantDiseaseDetectionScreen(rememberAppState(), viewModel, func)
+  }
+}

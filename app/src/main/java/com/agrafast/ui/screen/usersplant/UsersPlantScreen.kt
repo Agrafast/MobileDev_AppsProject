@@ -9,7 +9,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.agrafast.AppState
 import com.agrafast.R
+import com.agrafast.rememberAppState
 import com.agrafast.ui.component.PlantList
 import com.agrafast.ui.component.SimpleTopBar
 import com.agrafast.ui.navigation.Screen
@@ -18,7 +20,7 @@ import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
 fun UserPlantListScreen(
-  navController: NavController,
+  appState: AppState,
   sharedViewModel: GlobalViewModel,
 ) {
   Surface {
@@ -29,7 +31,7 @@ fun UserPlantListScreen(
         plants = plantsState.value,
         onItemClick = {
           sharedViewModel.setCurrentTutorialPlant(it)
-          navController.navigate(route = Screen.PlantDetail.route)
+          appState.navController.navigate(route = Screen.PlantDetail.route)
         },
         onDismiss = { plant ->
           sharedViewModel.removeMyPlant(plant)
@@ -43,6 +45,6 @@ fun UserPlantListScreen(
 fun DefaultPreview() {
   AgraFastTheme {
     val viewModel: GlobalViewModel = viewModel()
-    UserPlantListScreen(rememberNavController(), viewModel)
+    UserPlantListScreen(rememberAppState(), viewModel)
   }
 }

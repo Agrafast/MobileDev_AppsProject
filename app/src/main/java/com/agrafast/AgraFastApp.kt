@@ -1,6 +1,8 @@
 package com.agrafast
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
@@ -12,11 +14,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -39,10 +46,12 @@ import com.agrafast.ui.screen.plant.PlantListScreen
 import com.agrafast.ui.screen.profil.ProfileScreen
 import com.agrafast.ui.screen.usersplant.UserPlantListScreen
 import com.agrafast.ui.theme.AgraFastTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun AgraFastApp(
-  navController: NavHostController = rememberNavController()
+  appState: AppState = rememberAppState(),
 ) {
   val navItems = listOf(
     NavItem(stringResource(R.string.home), Icons.Default.Home, Screen.Home),
@@ -54,29 +63,34 @@ fun AgraFastApp(
     NavItem(stringResource(R.string.profile), Icons.Default.Person, Screen.Profil),
   )
 
-  val navBackStackEntry by navController.currentBackStackEntryAsState()
+  val navBackStackEntry by appState.navController.currentBackStackEntryAsState()
   val currentRoute = navBackStackEntry?.destination?.route
 
   // FAB Stuff
   val showFab = remember { mutableStateOf(false) }
   val fabOnclick = remember { mutableStateOf<(() -> Unit)?>(null) }
   val fabContent = remember { mutableStateOf<@Composable () -> Unit>({}) }
-  val setFabBehavior : (Boolean, @Composable () -> Unit, () -> Unit) -> Unit  = {show, content, onClick ->
-    showFab.value = show
-    fabContent.value = content
-    fabOnclick.value = onClick
-  }
+  val setFabBehavior: (Boolean, @Composable () -> Unit, () -> Unit) -> Unit =
+    { show, content, onClick ->
+      showFab.value = show
+      fabContent.value = content
+      fabOnclick.value = onClick
+    }
 
   Scaffold(
+    snackbarHost = { SnackbarHost(hostState = appState.snackbarHostState) },
     bottomBar = {
       val isVisible = navItems.map { it.screen.route }.contains(currentRoute)
 
       BottomBarComponent(navItems, isVisible, currentRoute) {
-        navController.navigate(it)
+        appState.navController.navigate(it)
       }
     },
     floatingActionButton = {
-      if (showFab.value) {
+      AnimatedVisibility(visible = showFab.value,
+        enter = fadeIn(),
+        exit = fadeOut(),
+      ) {
         FloatingActionButton(onClick = { fabOnclick.value?.invoke() }) {
           fabContent.value.invoke()
         }
@@ -85,26 +99,27 @@ fun AgraFastApp(
   ) { innerPadding ->
     val viewModel: GlobalViewModel = hiltViewModel()
     NavHost(
-      navController = navController,
+      navController = appState.navController,
       startDestination = Screen.Home.route, modifier = Modifier.padding(innerPadding)
     ) {
       composable(Screen.Home.route) {
-        HomeScreen(navController, viewModel)
+        HomeScreen(appState.navController, viewModel)
       }
       composable(Screen.PlantList.route) {
-        PlantListScreen(navController, viewModel)
+        PlantListScreen(appState.navController, viewModel)
       }
       composable(Screen.UserPlantList.route) {
-        UserPlantListScreen(navController, viewModel)
+        UserPlantListScreen(appState, viewModel)
       }
       composable(Screen.Profil.route) {
         ProfileScreen()
       }
       composable(route = Screen.PlantDetail.route) {
-        PlantDetailScreen(navController, viewModel)
+        PlantDetailScreen(appState, viewModel)
       }
       composable(Screen.PlantDiseaseDetection.route) {
         PlantDiseaseDetectionScreen(
+          appState,
           viewModel,
           setFabBehavior = setFabBehavior,
         )
@@ -140,6 +155,40 @@ fun BottomBarComponent(
       }
     }
   }
+}
+
+class AppState(
+  val snackbarHostState: SnackbarHostState,
+  val navController: NavHostController,
+  val coroutineScope: CoroutineScope,
+) {
+  fun showSnackbar(
+    message: String, actionLabel: String? = null,
+    duration: SnackbarDuration = SnackbarDuration.Short,
+    onResult: (SnackbarResult) -> Unit = {}
+  ) {
+    coroutineScope.launch {
+      val snackbarResult = snackbarHostState.showSnackbar(
+        actionLabel = actionLabel,
+        message = message,
+        duration = duration
+      )
+      onResult(snackbarResult)
+    }
+  }
+}
+
+@Composable
+fun rememberAppState(
+  snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+  navController: NavHostController = rememberNavController(),
+  coroutineScope: CoroutineScope = rememberCoroutineScope()
+) = remember(snackbarHostState, navController, coroutineScope) {
+  AppState(
+    snackbarHostState = snackbarHostState,
+    navController = navController,
+    coroutineScope = coroutineScope,
+  )
 }
 
 @Preview(showBackground = true)

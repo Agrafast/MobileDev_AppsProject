@@ -50,7 +50,7 @@ class PlantRepository @Inject constructor(
     return diseaseRef.addSnapshotListenerFlow(PlantDisease::class.java)
   }
 
-  private suspend fun getPrediction(path: String, image: File): String {
+  private suspend fun getPrediction(path: String, image: File): String? {
     val requestImageFile = image.asRequestBody("image/jpeg".toMediaType())
     val fileMultipart = MultipartBody.Part.createFormData("file", image.name, requestImageFile)
     var predicted: String? = null
@@ -58,13 +58,18 @@ class PlantRepository @Inject constructor(
       val response = plantService.getPrediction(path, fileMultipart)
       response.prediction
     } catch (e: Exception) {
-      "late_blight" // TODO Real API
+      Log.d("TAG", "getPrediction: ${e.message.toString()}")
+      null
     }
-    return predicted!!
+    return predicted
   }
 
   suspend fun getPredictionDisease(plant: Plant, file: File): Flow<UIState<PlantDisease>> = flow {
-    val diseaseName: String = getPrediction(plant.name, file)
+    val diseaseName: String? = getPrediction(plant.name, file)
+    if(diseaseName == null){
+      emit(UIState.Error("Failed to get prediction"))
+      return@flow
+    }
     Log.d("TAG", "getPredictionDisease: $diseaseName")
     try {
       val res =
@@ -74,6 +79,7 @@ class PlantRepository @Inject constructor(
       val data = res.toObject(PlantDisease::class.java)
       emit(UIState.Success(data))
     } catch (e: Exception) {
+      Log.d("TAG", "getPredictionDisease: ${e.message}")
       emit(UIState.Error(e.message!!))
     }
   }
