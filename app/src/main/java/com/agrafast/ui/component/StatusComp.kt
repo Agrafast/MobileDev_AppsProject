@@ -5,7 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,7 +47,7 @@ fun <T> StatusComp(state: UIState<T>) {
         .padding(top = 96.dp, bottom = 96.dp),
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally,
-      ) {
+    ) {
       if (state is UIState.Loading) {
         val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.lottie_loading))
         val progress by animateLottieCompositionAsState(
@@ -56,8 +56,7 @@ fun <T> StatusComp(state: UIState<T>) {
         )
         LottieAnimation(
           modifier = Modifier
-            .size(112.dp)
-            .fillMaxWidth(),
+            .height(96.dp),
           composition = composition,
           progress = progress
         )
