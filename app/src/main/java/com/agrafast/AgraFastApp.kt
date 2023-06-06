@@ -83,7 +83,9 @@ fun AgraFastApp(
       val isVisible = navItems.map { it.screen.route }.contains(currentRoute)
 
       BottomBarComponent(navItems, isVisible, currentRoute) {
-        appState.navController.navigate(it)
+        appState.navController.apply {
+          popBackStack()
+          navigate(it) }
       }
     },
     floatingActionButton = {
