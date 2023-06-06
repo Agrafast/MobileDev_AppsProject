@@ -62,7 +62,7 @@ class PlantRepository @Inject constructor(
       response.prediction
     } catch (e: Exception) {
       Log.d("TAG", "getPrediction: ${e.message.toString()}")
-      "late_blight"
+      "healthy"
     }
     return predicted
   }
