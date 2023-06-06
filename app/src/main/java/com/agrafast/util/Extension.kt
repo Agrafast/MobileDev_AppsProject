@@ -15,6 +15,7 @@ import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.io.ByteArrayOutputStream
@@ -87,7 +88,7 @@ fun Context.createFileFromUri(selectedImg: Uri): File {
   return myFile
 }
 
-fun File.reduceFileImage(max: Int = 1000000): File {
+suspend fun File.reduceFileImage(max: Int = 1000000): File {
   val bitmap = BitmapFactory.decodeFile(this.path)
   var compressQuality = 100
   var streamLength: Int
@@ -97,7 +98,7 @@ fun File.reduceFileImage(max: Int = 1000000): File {
     val bmpPicByteArray = bmpStream.toByteArray()
     streamLength = bmpPicByteArray.size
     compressQuality -= 5
-  } while (streamLength > max)
+  } while (streamLength > max && compressQuality > 50)
   bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, FileOutputStream(this))
   return this
 }

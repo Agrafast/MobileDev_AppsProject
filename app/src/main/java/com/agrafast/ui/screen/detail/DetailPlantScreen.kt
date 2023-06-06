@@ -4,7 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,16 +12,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +28,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,95 +39,108 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.agrafast.AppState
 import com.agrafast.R
 import com.agrafast.data.firebase.model.Plant
+import com.agrafast.data.firebase.model.TutorialStep
+import com.agrafast.domain.UIState
 import com.agrafast.rememberAppState
+import com.agrafast.ui.component.ExpandableWithDivider
+import com.agrafast.ui.component.PlantTitle
 import com.agrafast.ui.component.SimpleActionBar
+import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlantDetailScreen(
   appState: AppState,
   sharedViewModel: GlobalViewModel,
 ) {
+  val viewModel = hiltViewModel<DetailPlantViewModel>()
   val plant: Plant = sharedViewModel.tutorialPlant!!
-  Surface {
-    Column(
-      modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(
-          rememberScrollState()
-        )
+
+//  State
+  val tutorialStepsState = viewModel.tutorialsState.collectAsState()
+
+  // SideEffects
+  DisposableEffect(Unit) {
+    viewModel.getPlantTutorial(plant.id)
+    onDispose {
+      sharedViewModel.setCurrentTutorialPlant(null)
+    }
+  }
+
+  Surface(
+    modifier = Modifier.fillMaxHeight()
+  ) {
+    LazyColumn(
     ) {
       // TODO -> Change to Network Image (AsyncImage)
-      Box {
-        AsyncImage(
-          model =plant.image_url,
-          contentDescription = null,
-          contentScale = ContentScale.Crop,
-          modifier = Modifier
-            .fillMaxWidth()
-            .height(320.dp)
-            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-        )
-        SimpleActionBar(
-          title = stringResource(id = R.string.plant_tutorial),
-          onBackClicked = { appState.navController.navigateUp() },
-          isBackgroundTransparent = true
-        )
+      item {
+        Box {
+          AsyncImage(
+            model = plant.image_url,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(320.dp)
+              .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+          )
+          SimpleActionBar(
+            title = stringResource(id = R.string.plant_tutorial),
+            onBackClicked = { appState.navController.navigateUp() },
+            isBackgroundTransparent = true
+          )
+        }
       }
-      Spacer(modifier = Modifier.height(12.dp))
-      Text(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        text = plant.title,
-        style = MaterialTheme.typography.titleLarge,
-      )
-      Text(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        text = "Nama latin ni boss",
-        style = MaterialTheme.typography.bodyLarge,
-      ) // TODO Update based API
-      Spacer(modifier = Modifier.height(8.dp))
-      Text(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        text = LoremIpsum(20).values.joinToString(""), // TODO From API
-        style = MaterialTheme.typography.bodyMedium,
-      ) // TODO Update based API
-      Spacer(modifier = Modifier.height(16.dp))
-      Divider()
-      Spacer(modifier = Modifier.height(16.dp))
-      PlantingTutorial()
-      Spacer(modifier = Modifier.height(16.dp)) // For Spacing with NavBar
+      stickyHeader {
+        PlantTitle(plant.title, plant.botanical_name)
+      }
+      item {
+        PlantingTutorial(tutorialStepsState)
+      }
     }
   }
 }
 
-
-// TODO From API
 @Composable
-fun PlantingTutorial() {
-  Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-    Text(
-      text = "Cara Bertanam",
-      style = MaterialTheme.typography.titleMedium,
-    )
-    Spacer(modifier = Modifier.height(4.dp))
-    ExpandableCard(title = "Pembibitan", description = LoremIpsum(40).values.joinToString(" "))
-    ExpandableCard(title = "Penanaman", description = LoremIpsum(40).values.joinToString(" "))
-    ExpandableCard(title = "Perawatan", description = LoremIpsum(40).values.joinToString(" "))
-    ExpandableCard(title = "Maling", description = LoremIpsum(40).values.joinToString(" "))
-    ExpandableCard(title = "Maling Lagi", description = LoremIpsum(40).values.joinToString(" "))
-    ExpandableCard(title = "Panen Guys", description = LoremIpsum(40).values.joinToString(" "))
+fun PlantingTutorial(tutorialStepsState: State<UIState<List<TutorialStep>>>) {
+  if (tutorialStepsState.value is UIState.Success<List<TutorialStep>>) {
+    val tutorialSteps =
+      (tutorialStepsState.value as UIState.Success<List<TutorialStep>>).data!!.sortedBy { it.tahap_id }
+    Column(
+    ) {
+      Surface(
+        tonalElevation = 4.dp,
+        modifier = Modifier.fillMaxWidth(),
+      ) {
+        Text(
+          modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp),
+          text = "Langkah - langkah : ",
+          style = MaterialTheme.typography.titleMedium,
+        )
+      }
+      tutorialSteps.mapIndexed { index, it ->
+        ExpandableWithDivider(
+          title = "${it.tahap_id}. ${it.tahapan_menanam}",
+          description = it.detail_kegiatan,
+          isLast = index > tutorialSteps.size - 2
+        )
+      }
+    }
+  } else {
+    StatusComp(state = tutorialStepsState.value)
   }
 }
 

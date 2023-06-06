@@ -57,9 +57,9 @@ import com.agrafast.AppState
 import com.agrafast.BuildConfig
 import com.agrafast.R
 import com.agrafast.domain.UIState
-import com.agrafast.data.firebase.model.Plant
 import com.agrafast.data.firebase.model.PlantDisease
 import com.agrafast.rememberAppState
+import com.agrafast.ui.component.PlantTitle
 import com.agrafast.ui.component.SimpleExpandable
 import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.screen.GlobalViewModel
@@ -78,7 +78,7 @@ fun PlantDiseaseDetectionScreen(
 ) {
   val context = LocalContext.current
   val viewModel: PlantDiseaseDetectionViewModel = hiltViewModel()
-  viewModel.currentPlant = sharedViewModel.detectionPlant!!
+  val plant = sharedViewModel.detectionPlant!!
 
   // Camera and Gallery Launcher Stufff
   val tempFile = context.createTempFile()
@@ -116,7 +116,7 @@ fun PlantDiseaseDetectionScreen(
   // SideEffects
   // Launch one time
   LaunchedEffect(Unit) {
-    viewModel.getPlantDiseases()
+    viewModel.getPlantDiseases(plant.id)
 
     // Check Permission 2 times
     val permissionCheckResult =
@@ -137,7 +137,7 @@ fun PlantDiseaseDetectionScreen(
         tint = Color.White
       )
     }, {
-      viewModel.getPredictionDisease(context)
+      viewModel.getPredictionDisease(plant, context)
     })
     // Hide FAB when composable cleared
     onDispose {
@@ -175,7 +175,7 @@ fun PlantDiseaseDetectionScreen(
           })
       }
       stickyHeader {
-        PlantDetailComp(viewModel.currentPlant)
+        PlantTitle("Deteksi penyakit pada ${plant.title}", plant.botanical_name)
       }
       item {
         val showPredicted = predictedDiseaseState.value is UIState.Success<PlantDisease>
@@ -295,33 +295,6 @@ fun PlantImageComp(
   }
 }
 
-@Composable
-fun PlantDetailComp(plant: Plant) {
-  Surface(
-    color = MaterialTheme.colorScheme.background,
-    tonalElevation = 4.dp
-  ) {
-    Row(
-      modifier = Modifier
-        .padding(horizontal = 16.dp, vertical = 4.dp)
-        .height(64.dp)
-        .fillMaxWidth(),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically
-    ) {
-      Column(verticalArrangement = Arrangement.Center) {
-        Text(
-          text = "Deteksi penyakit pada ${plant.title}",
-          style = MaterialTheme.typography.titleLarge,
-        )
-        Text(
-          text = plant.botanical_name,
-          style = MaterialTheme.typography.bodyLarge,
-        )
-      }
-    }
-  }
-}
 
 @Composable
 fun PredictedDetailComp(predictedDiseaseState: State<UIState<PlantDisease>>) {
@@ -350,11 +323,8 @@ fun PredictedDetailComp(predictedDiseaseState: State<UIState<PlantDisease>>) {
         disease.title + " / " + disease.title_id,
         style = MaterialTheme.typography.bodyMedium,
       )
-      Spacer(modifier = Modifier.height(8.dp))
       SimpleExpandable(title = "Penyebab", description = disease.cause, true)
-      Spacer(modifier = Modifier.height(8.dp))
       SimpleExpandable(title = "Pengendalian", description = disease.treatment)
-      Spacer(modifier = Modifier.height(8.dp))
       SimpleExpandable(title = "Pengobatan", description = disease.medicine)
     }
 

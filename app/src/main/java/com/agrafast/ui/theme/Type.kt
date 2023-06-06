@@ -51,7 +51,7 @@ val Typography = Typography(
   ),
   titleSmall = TextStyle(
     fontFamily = Inter,
-    fontWeight = FontWeight.Medium,
+    fontWeight = FontWeight.SemiBold,
     fontSize = 16.sp,
     lineHeight = 22.sp,
     letterSpacing = 0.1.sp

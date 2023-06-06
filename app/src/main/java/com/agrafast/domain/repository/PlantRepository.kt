@@ -5,6 +5,7 @@ import com.agrafast.data.network.service.PlantApiService
 import com.agrafast.domain.UIState
 import com.agrafast.data.firebase.model.Plant
 import com.agrafast.data.firebase.model.PlantDisease
+import com.agrafast.data.firebase.model.TutorialStep
 import com.agrafast.util.addSnapshotListenerFlow
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -38,6 +39,15 @@ class PlantRepository @Inject constructor(
 //  }
 
 
+  fun getTutorialPlants():Flow<UIState<List<Plant>>>  {
+    return plantRef.addSnapshotListenerFlow(Plant::class.java)
+  }
+
+  fun getPlantTutorial(plantId: String): Flow<UIState<List<TutorialStep>>> {
+    val diseaseRef = plantRef.document(plantId).collection("tutorial")
+    return diseaseRef.addSnapshotListenerFlow(TutorialStep::class.java)
+  }
+
   fun getPlantDiseases(plantId: String): Flow<UIState<List<PlantDisease>>> {
     val diseaseRef = plantRef.document(plantId).collection("disease")
     return diseaseRef.addSnapshotListenerFlow(PlantDisease::class.java)
@@ -52,7 +62,7 @@ class PlantRepository @Inject constructor(
       response.prediction
     } catch (e: Exception) {
       Log.d("TAG", "getPrediction: ${e.message.toString()}")
-      null
+      "late_blight"
     }
     return predicted
   }
@@ -66,7 +76,7 @@ class PlantRepository @Inject constructor(
     Log.d("TAG", "getPredictionDisease: $diseaseName")
     try {
       val res =
-        plantRef.document(plant.id!!).collection("disease").whereEqualTo("name", diseaseName).get()
+        plantRef.document(plant.id).collection("disease").whereEqualTo("name", diseaseName).get()
           .await().documents.first()
       Log.d("TAG", "getPredictionDisease: $res")
       val data = res.toObject(PlantDisease::class.java)
@@ -75,10 +85,6 @@ class PlantRepository @Inject constructor(
       Log.d("TAG", "getPredictionDisease: ${e.message}")
       emit(UIState.Error(e.message!!))
     }
-  }
-
-  fun getTutorialPlants():Flow<UIState<List<Plant>>>  {
-    return plantRef.addSnapshotListenerFlow(Plant::class.java)
   }
 
 }
