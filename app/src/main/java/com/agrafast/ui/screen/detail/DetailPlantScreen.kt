@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,6 +57,7 @@ import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
+import com.agrafast.ui.theme.Gray200
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -87,22 +86,9 @@ fun PlantDetailScreen(
     ) {
       // TODO -> Change to Network Image (AsyncImage)
       item {
-        Box {
-          AsyncImage(
-            model = plant.image_url,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-              .fillMaxWidth()
-              .height(320.dp)
-              .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-          )
-          SimpleActionBar(
-            title = stringResource(id = R.string.plant_tutorial),
-            onBackClicked = { appState.navController.navigateUp() },
-            isBackgroundTransparent = true
-          )
-        }
+        PlantImageComp(
+          imageModel = plant.image_url,
+          onBackClicked = { appState.navController.navigateUp() })
       }
       stickyHeader {
         PlantTitle(plant.title, plant.botanical_name)
@@ -110,6 +96,33 @@ fun PlantDetailScreen(
       item {
         PlantingTutorial(tutorialStepsState)
       }
+    }
+  }
+}
+
+@Composable
+fun PlantImageComp(imageModel: Any, onBackClicked: () -> Unit) {
+  Surface(color = MaterialTheme.colorScheme.secondaryContainer) {
+    Box(
+      modifier = Modifier
+        .height(320.dp)
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+        .background(Gray200)
+    ) {
+      AsyncImage(
+        model = imageModel,
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+          .fillMaxSize()
+          .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+      )
+      SimpleActionBar(
+        title = stringResource(id = R.string.plant_tutorial),
+        onBackClicked = onBackClicked,
+        isBackgroundTransparent = true
+      )
     }
   }
 }
@@ -126,7 +139,9 @@ fun PlantingTutorial(tutorialStepsState: State<UIState<List<TutorialStep>>>) {
         modifier = Modifier.fillMaxWidth(),
       ) {
         Text(
-          modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp),
+          modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp),
           text = "Langkah - langkah : ",
           style = MaterialTheme.typography.titleMedium,
         )

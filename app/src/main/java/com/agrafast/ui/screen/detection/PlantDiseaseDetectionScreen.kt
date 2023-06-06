@@ -203,7 +203,7 @@ fun PlantImageComp(
   onCameraClick: () -> Unit,
   onClear: () -> Unit,
 ) {
-  Surface(tonalElevation = 4.dp) {
+  Surface(color = MaterialTheme.colorScheme.secondaryContainer) {
     Box(
       modifier = Modifier
         .height(400.dp)
@@ -286,11 +286,8 @@ fun PlantImageComp(
               )
             }
           }
-
-
         }
       }
-//
     }
   }
 }
