@@ -44,6 +44,7 @@ import com.agrafast.ui.screen.detection.PlantDiseaseDetectionScreen
 import com.agrafast.ui.screen.home.HomeScreen
 import com.agrafast.ui.screen.plant.PlantListScreen
 import com.agrafast.ui.screen.profil.ProfileScreen
+import com.agrafast.ui.screen.splash.SplashScreen
 import com.agrafast.ui.screen.usersplant.UserPlantListScreen
 import com.agrafast.ui.theme.AgraFastTheme
 import kotlinx.coroutines.CoroutineScope
@@ -102,8 +103,11 @@ fun AgraFastApp(
     val viewModel: GlobalViewModel = hiltViewModel()
     NavHost(
       navController = appState.navController,
-      startDestination = Screen.Home.route, modifier = Modifier.padding(innerPadding)
+      startDestination = Screen.Splash.route, modifier = Modifier.padding(innerPadding)
     ) {
+      composable(Screen.Splash.route){
+        SplashScreen(appState = appState)
+      }
       composable(Screen.Home.route) {
         HomeScreen(appState.navController, viewModel)
       }

@@ -1,6 +1,7 @@
 package com.agrafast.ui.navigation
 
 sealed class Screen(val route: String) {
+  object Splash : Screen("splash")
   object Home : Screen("home")
   object PlantList : Screen("plant")
   object PlantDetail : Screen("plant/{plantId}") {
