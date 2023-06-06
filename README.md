@@ -22,7 +22,8 @@
 
 ## TODO
 - Integrate HomeScreen
-  > Ambil data user dan list tanaman dari firebase
+  > Ambil data list tanaman dari firebase (Hafiz)
+  > Ambil data user  dari firebase
 - Integrate DetailScreen
   > Ambil data detail dan tutorial tanamana dari firebase
   > Tambahkan fungsionalitas untuk favorite/myplant

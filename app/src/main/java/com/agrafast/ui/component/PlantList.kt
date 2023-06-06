@@ -1,8 +1,6 @@
 package com.agrafast.ui.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +18,7 @@ import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
@@ -27,15 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.agrafast.data.firebase.model.Plant
 import com.agrafast.domain.UIState
-import com.agrafast.domain.model.Plant
-import com.agrafast.ui.screen.GlobalViewModel
-import com.agrafast.ui.theme.AgraFastTheme
-import com.agrafast.util.TextUtil
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -47,17 +42,12 @@ fun PlantList(
 ) {
   if (plants.isNotEmpty()) {
     LazyColumn(
-      modifier = Modifier.fillMaxHeight(),
-      verticalArrangement = Arrangement.spacedBy(8.dp)
+      modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-      items(
-        plants,
-        key = { it.hashCode() }
-      ) {
+      items(plants, key = { it.id }) {
         if (onDismiss == null) {
           PlantListItem(plant = it, onClick = onItemClick)
         } else {
-
           SwipeablePlantListItem(
             modifier = Modifier.animateItemPlacement(),
             plant = it,
@@ -79,71 +69,75 @@ fun PlantList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeablePlantListItem(
-  modifier: Modifier,
-  plant: Plant,
-  onItemClick: (Plant) -> Unit,
-  onDismiss: (plant: Plant) -> Unit
+  modifier: Modifier, plant: Plant, onItemClick: (Plant) -> Unit, onDismiss: (plant: Plant) -> Unit
 ) {
-  val dismissState = rememberDismissState(
-    confirmValueChange = { dismissValue ->
-      if (dismissValue == DismissValue.DismissedToEnd) onDismiss(plant)
-      true
-    }
-  )
-  SwipeToDismiss(
-    modifier = modifier,
+  val dismissState = rememberDismissState(confirmValueChange = { dismissValue ->
+    if (dismissValue == DismissValue.DismissedToEnd) onDismiss(plant)
+    true
+  })
+  SwipeToDismiss(modifier = modifier,
     state = dismissState,
     directions = setOf(DismissDirection.StartToEnd),
     background = {},
     dismissContent = {
       PlantListItem(plant = plant, onClick = onItemClick)
-    }
-  )
+    })
 }
 
 @Composable
 fun PlantListItem(plant: Plant, onClick: (Plant) -> Unit) {
-  Row(
+  Surface(
+    shape = RoundedCornerShape(8.dp),
+    tonalElevation = 4.dp,
     modifier = Modifier
       .padding(horizontal = 16.dp)
       .height(96.dp)
       .fillMaxWidth()
-      .clip(RoundedCornerShape(8.dp))
-      .background(MaterialTheme.colorScheme.inverseOnSurface)
       .clickable {
         onClick(plant)
       },
-  ) {
-    Image(
-      modifier = Modifier
-        .size(96.dp)
-        .clip(RoundedCornerShape(8.dp)),
-      contentScale = ContentScale.Crop,
-      painter = painterResource(id = plant.image), contentDescription = null
-    )
-    Column(
-      modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+
     ) {
-      Text(
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        text = TextUtil.buildPlantNameWithLatin(plant),
-        style = MaterialTheme.typography.labelLarge,
+    Row() {
+      AsyncImage(
+        modifier = Modifier
+          .size(96.dp)
+          .clip(RoundedCornerShape(8.dp)),
+        contentScale = ContentScale.Crop,
+        model = plant.image_url,
+        contentDescription = null
       )
-      Text(
-        text = plant.description,
-        style = MaterialTheme.typography.bodyMedium,
-        maxLines = 3,
-        overflow = TextOverflow.Ellipsis,
-      )
+      Column(
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+      ) {
+        Text(
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+          text = plant.title,
+          style = MaterialTheme.typography.titleSmall,
+        )
+        Text(
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis,
+          text = plant.botanical_name,
+          style = MaterialTheme.typography.labelLarge,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+          text = "Selengkapnya tentang ${plant.title}",
+          style = MaterialTheme.typography.bodyMedium,
+          maxLines = 2,
+          overflow = TextOverflow.Ellipsis,
+        )
+      }
     }
   }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PlantListItemPreview() {
-  AgraFastTheme {
-    PlantListItem(plant = GlobalViewModel().getDummyTutorialPlants(1)[0], {})
-  }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PlantListItemPreview() {
+//  AgraFastTheme {
+//    PlantListItem(plant = GlobalViewModel().g, {})
+//  }
+//}

@@ -25,6 +25,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.agrafast.R
+import com.agrafast.data.firebase.model.Plant
+import com.agrafast.domain.UIState
 import com.agrafast.ui.component.PlantList
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.navigation.Screen
@@ -36,9 +38,10 @@ fun PlantListScreen(
   navController: NavController,
   sharedViewModel: GlobalViewModel,
 ) {
-  val plants = sharedViewModel.getDummyTutorialPlants(20)
-  var plantsState by remember { mutableStateOf(plants) }
+  val plants = sharedViewModel.getTutorialPlants()
+  var plantsState = remember{plants}
   var searchValue by remember { mutableStateOf("") }
+
   Log.d("TAG", "PlantListScreen: Recomposition")
   Surface {
     Column {
@@ -51,7 +54,7 @@ fun PlantListScreen(
         onValueChange = {
           searchValue = it
           plantsState = plants.filter { plant ->
-            plant.title.contains(it, true) or plant.titleLatin.contains(it, true)
+            plant.title.contains(it, true) or plant.botanical_name.contains(it, true)
           }
         },
       )

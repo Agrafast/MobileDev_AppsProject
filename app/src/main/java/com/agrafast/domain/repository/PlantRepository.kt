@@ -3,19 +3,13 @@ package com.agrafast.domain.repository
 import android.util.Log
 import com.agrafast.data.network.service.PlantApiService
 import com.agrafast.domain.UIState
-import com.agrafast.domain.model.Plant
-import com.agrafast.domain.model.PlantDisease
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.EventListener
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.QuerySnapshot
+import com.agrafast.data.firebase.model.Plant
+import com.agrafast.data.firebase.model.PlantDisease
+import com.agrafast.data.firebase.model.TutorialStep
+import com.agrafast.util.addSnapshotListenerFlow
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import okhttp3.MediaType.Companion.toMediaType
@@ -45,6 +39,15 @@ class PlantRepository @Inject constructor(
 //  }
 
 
+  fun getTutorialPlants():Flow<UIState<List<Plant>>>  {
+    return plantRef.addSnapshotListenerFlow(Plant::class.java)
+  }
+
+  fun getPlantTutorial(plantId: String): Flow<UIState<List<TutorialStep>>> {
+    val diseaseRef = plantRef.document(plantId).collection("tutorial")
+    return diseaseRef.addSnapshotListenerFlow(TutorialStep::class.java)
+  }
+
   fun getPlantDiseases(plantId: String): Flow<UIState<List<PlantDisease>>> {
     val diseaseRef = plantRef.document(plantId).collection("disease")
     return diseaseRef.addSnapshotListenerFlow(PlantDisease::class.java)
@@ -66,14 +69,14 @@ class PlantRepository @Inject constructor(
 
   suspend fun getPredictionDisease(plant: Plant, file: File): Flow<UIState<PlantDisease>> = flow {
     val diseaseName: String? = getPrediction(plant.name, file)
-    if(diseaseName == null){
+    if (diseaseName == null) {
       emit(UIState.Error("Failed to get prediction"))
       return@flow
     }
     Log.d("TAG", "getPredictionDisease: $diseaseName")
     try {
       val res =
-        plantRef.document(plant.id!!).collection("disease").whereEqualTo("name", diseaseName).get()
+        plantRef.document(plant.id).collection("disease").whereEqualTo("name", diseaseName).get()
           .await().documents.first()
       Log.d("TAG", "getPredictionDisease: $res")
       val data = res.toObject(PlantDisease::class.java)
@@ -84,41 +87,4 @@ class PlantRepository @Inject constructor(
     }
   }
 
-  fun <T> CollectionReference.addSnapshotListenerFlow(dataType: Class<T>): Flow<UIState<List<T>>> =
-    callbackFlow {
-      val listener = object : EventListener<QuerySnapshot> {
-        override fun onEvent(snapshot: QuerySnapshot?, error: FirebaseFirestoreException?) {
-          if (error != null) {
-            trySend(UIState.Error(error.localizedMessage!!.toString()))
-            return
-          }
-          if (snapshot?.documents != null) {
-            val list = snapshot.documents.mapNotNull { docSnapshot ->
-              docSnapshot.toObject(dataType)
-            }
-            trySend(UIState.Success(list))
-          }
-        }
-      }
-      val registration = addSnapshotListener(listener)
-      awaitClose { registration.remove() }
-    }
-
-  fun <T> DocumentReference.addSnapshotListenerFlow(dataType: Class<T>): Flow<UIState<T>> =
-    callbackFlow {
-      val listener = object : EventListener<DocumentSnapshot> {
-        override fun onEvent(snapshot: DocumentSnapshot?, error: FirebaseFirestoreException?) {
-          if (error != null) {
-            trySend(UIState.Error(error.localizedMessage!!.toString()))
-            return
-          }
-          if (snapshot != null && snapshot.exists()) {
-            val data: T = snapshot.toObject(dataType)!!
-            trySend(UIState.Success(data))
-          }
-        }
-      }
-      val registration = addSnapshotListener(listener)
-      awaitClose { registration.remove() }
-    }
 }
