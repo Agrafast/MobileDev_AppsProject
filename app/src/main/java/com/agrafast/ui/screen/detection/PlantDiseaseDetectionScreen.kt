@@ -57,8 +57,8 @@ import com.agrafast.AppState
 import com.agrafast.BuildConfig
 import com.agrafast.R
 import com.agrafast.domain.UIState
-import com.agrafast.domain.model.Plant
-import com.agrafast.domain.model.PlantDisease
+import com.agrafast.data.firebase.model.Plant
+import com.agrafast.data.firebase.model.PlantDisease
 import com.agrafast.rememberAppState
 import com.agrafast.ui.component.SimpleExpandable
 import com.agrafast.ui.component.StatusComp
@@ -315,7 +315,7 @@ fun PlantDetailComp(plant: Plant) {
           style = MaterialTheme.typography.titleLarge,
         )
         Text(
-          text = plant.titleLatin,
+          text = plant.botanical_name,
           style = MaterialTheme.typography.bodyLarge,
         )
       }

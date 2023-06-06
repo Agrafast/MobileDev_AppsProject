@@ -5,7 +5,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.withStyle
-import com.agrafast.domain.model.Plant
+import com.agrafast.data.firebase.model.Plant
 
 class TextUtil {
   companion object {
@@ -14,7 +14,7 @@ class TextUtil {
         append(plant.title)
         append(" (")
         withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
-          append(plant.titleLatin)
+          append(plant.botanical_name)
         }
         append(")")
       }

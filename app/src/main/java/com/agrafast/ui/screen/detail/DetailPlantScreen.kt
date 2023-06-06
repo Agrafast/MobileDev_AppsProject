@@ -44,11 +44,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.agrafast.AppState
 import com.agrafast.R
-import com.agrafast.domain.model.Plant
+import com.agrafast.data.firebase.model.Plant
 import com.agrafast.rememberAppState
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.screen.GlobalViewModel
@@ -70,8 +69,8 @@ fun PlantDetailScreen(
     ) {
       // TODO -> Change to Network Image (AsyncImage)
       Box {
-        Image(
-          painter = painterResource(id = plant.image),
+        AsyncImage(
+          model =plant.image_url,
           contentDescription = null,
           contentScale = ContentScale.Crop,
           modifier = Modifier

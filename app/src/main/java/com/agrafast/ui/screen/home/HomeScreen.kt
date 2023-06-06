@@ -1,6 +1,5 @@
 package com.agrafast.ui.screen.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,6 +30,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -46,8 +46,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.agrafast.R
-import com.agrafast.domain.model.Plant
+import com.agrafast.domain.UIState
+import com.agrafast.data.firebase.model.Plant
+import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
@@ -57,9 +60,15 @@ import com.agrafast.ui.theme.AgraFastTheme
 fun HomeScreen(
   navController: NavController,
   sharedViewModel: GlobalViewModel,
+//  viewModel: HomeViewModel = hiltViewModel()
 ) {
-//  Surface(
-//  ) {
+
+  val tutorialPlantsState = sharedViewModel.tutorialPlantsState.collectAsState()
+
+  // SideEffects
+  LaunchedEffect(Unit){
+    sharedViewModel.fetchTutorialPlants()
+  }
   LazyColumn(
     contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
   ) {
@@ -67,7 +76,7 @@ fun HomeScreen(
     item { SectionTitle(text = stringResource(id = R.string.disease_detector_title)) }
     item {
       DiseaseDetectionComp(
-        plants = sharedViewModel.getDummyDiseasePlants(),
+        plants = sharedViewModel.fetchPredictionPlants(),
         onClickItem = {
           sharedViewModel.setCurrentDetectionPlant(it)
           navController.navigate(route = Screen.PlantDiseaseDetection.route)
@@ -80,14 +89,13 @@ fun HomeScreen(
     }
     item {
       PlantStuffComp(
-        plants = sharedViewModel.getDummyTutorialPlants(10),
+        plantsState = tutorialPlantsState.value,
         onClickItem = {
           sharedViewModel.setCurrentTutorialPlant(it)
           navController.navigate(route = Screen.PlantDetail.route)
         })
     }
   }
-//  }
 }
 
 @Composable
@@ -190,8 +198,8 @@ fun DiseaseDetectionPlantCard(plant: Plant, height: Dp, onClickItem: (Plant) -> 
         onClickItem(plant)
       }
   ) {
-    Image(
-      painter = painterResource(id = plant.image),
+    AsyncImage(
+      model = plant.image_url,
       contentDescription = plant.title,
       contentScale = ContentScale.Crop,
       modifier = Modifier
@@ -228,26 +236,19 @@ fun DiseaseDetectionPlantCard(plant: Plant, height: Dp, onClickItem: (Plant) -> 
 
 
 @Composable
-fun PlantStuffComp(plants: List<Plant>, onClickItem: (Plant) -> Unit) {
-  val halfNumber: Int = plants.size / 2
-  val plantsA = plants.subList(0, halfNumber)
-  val plantsB = plants.subList(halfNumber, plants.size)
-  LazyRow(
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
-    contentPadding = PaddingValues(horizontal = 16.dp)
-  ) {
-    items(plantsA) {
-      PlantCard(plant = it, onClickItem = onClickItem)
+fun PlantStuffComp(plantsState: UIState<List<Plant>>, onClickItem: (Plant) -> Unit) {
+  if (plantsState is UIState.Success) {
+    val plants : List<Plant> = plantsState.data!!.subList(0,6)
+    LazyRow(
+      horizontalArrangement = Arrangement.spacedBy(12.dp),
+      contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+      items(plants) {
+        PlantCard(plant = it, onClickItem = onClickItem)
+      }
     }
-  }
-  Spacer(modifier = Modifier.height(8.dp))
-  LazyRow(
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
-    contentPadding = PaddingValues(horizontal = 16.dp)
-  ) {
-    items(plantsB) {
-      PlantCard(plant = it, onClickItem = onClickItem)
-    }
+  } else {
+    StatusComp(state = plantsState)
   }
 }
 
@@ -256,8 +257,8 @@ fun PlantCard(plant: Plant, onClickItem: (Plant) -> Unit) {
   Column(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    Image(
-      painter = painterResource(id = plant.image),
+    AsyncImage(
+      model = plant.image_url,
       contentDescription = plant.title,
       contentScale = ContentScale.Crop,
       modifier = Modifier

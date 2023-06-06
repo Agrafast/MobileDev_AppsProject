@@ -5,8 +5,8 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agrafast.domain.UIState
-import com.agrafast.domain.model.Plant
-import com.agrafast.domain.model.PlantDisease
+import com.agrafast.data.firebase.model.Plant
+import com.agrafast.data.firebase.model.PlantDisease
 import com.agrafast.domain.repository.PlantRepository
 import com.agrafast.util.createFileFromUri
 import com.agrafast.util.reduceFileImage
@@ -14,7 +14,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel

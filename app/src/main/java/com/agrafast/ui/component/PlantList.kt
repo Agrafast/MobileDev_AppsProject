@@ -31,8 +31,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.agrafast.domain.UIState
-import com.agrafast.domain.model.Plant
+import com.agrafast.data.firebase.model.Plant
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 import com.agrafast.util.TextUtil
@@ -52,7 +53,7 @@ fun PlantList(
     ) {
       items(
         plants,
-        key = { it.hashCode() }
+        key = { it.id }
       ) {
         if (onDismiss == null) {
           PlantListItem(plant = it, onClick = onItemClick)
@@ -114,12 +115,12 @@ fun PlantListItem(plant: Plant, onClick: (Plant) -> Unit) {
         onClick(plant)
       },
   ) {
-    Image(
+    AsyncImage(
       modifier = Modifier
         .size(96.dp)
         .clip(RoundedCornerShape(8.dp)),
       contentScale = ContentScale.Crop,
-      painter = painterResource(id = plant.image), contentDescription = null
+      model = plant.image_url, contentDescription = null
     )
     Column(
       modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
@@ -127,23 +128,30 @@ fun PlantListItem(plant: Plant, onClick: (Plant) -> Unit) {
       Text(
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        text = TextUtil.buildPlantNameWithLatin(plant),
-        style = MaterialTheme.typography.labelLarge,
+        text = plant.title,
+        style = MaterialTheme.typography.titleSmall,
       )
       Text(
-        text = plant.description,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        text = plant.botanical_name,
+        style = MaterialTheme.typography.labelLarge,
+      )
+      Spacer(modifier = Modifier.fillMaxHeight())
+      Text(
+        text = "Selengkapnya tentang ${plant.title}",
         style = MaterialTheme.typography.bodyMedium,
-        maxLines = 3,
+        maxLines = 2,
         overflow = TextOverflow.Ellipsis,
       )
     }
   }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PlantListItemPreview() {
-  AgraFastTheme {
-    PlantListItem(plant = GlobalViewModel().getDummyTutorialPlants(1)[0], {})
-  }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PlantListItemPreview() {
+//  AgraFastTheme {
+//    PlantListItem(plant = GlobalViewModel().g, {})
+//  }
+//}
