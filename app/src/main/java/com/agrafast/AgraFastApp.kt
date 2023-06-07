@@ -36,6 +36,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.agrafast.data.firebase.model.User
 import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
@@ -47,6 +48,8 @@ import com.agrafast.ui.screen.profil.ProfileScreen
 import com.agrafast.ui.screen.splash.SplashScreen
 import com.agrafast.ui.screen.usersplant.UserPlantListScreen
 import com.agrafast.ui.theme.AgraFastTheme
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -168,6 +171,12 @@ class AppState(
   val navController: NavHostController,
   val coroutineScope: CoroutineScope,
 ) {
+  lateinit var user: User
+    private set
+  fun setUser(user: User){
+    this.user = user
+  }
+
   fun showSnackbar(
     message: String, actionLabel: String? = null,
     duration: SnackbarDuration = SnackbarDuration.Short,

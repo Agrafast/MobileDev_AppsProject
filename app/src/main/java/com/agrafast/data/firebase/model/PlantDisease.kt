@@ -9,7 +9,7 @@ data class PlantDisease(
   val treatment: String = "",
 ): FirebaseObject {
   override lateinit var id: String
-  override fun addId(id: String): PlantDisease {
+  override fun setId(id: String): PlantDisease {
     this.id = id
     return this
   }

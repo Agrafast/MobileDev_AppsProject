@@ -4,7 +4,8 @@ import android.content.Context
 import com.agrafast.App
 import com.agrafast.data.network.ApiServiceProvider
 import com.agrafast.data.network.service.PlantApiService
-import com.agrafast.domain.repository.PlantRepository
+import com.agrafast.data.repository.PlantRepository
+import com.agrafast.data.repository.UserRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,4 +34,8 @@ object AppModule {
     plantApiService: PlantApiService,
 //    dataStore: DataStore
   ): PlantRepository = PlantRepository(plantApiService)
+
+  @Provides
+  @Singleton
+  fun provideUserRepository(): UserRepository = UserRepository()
 }

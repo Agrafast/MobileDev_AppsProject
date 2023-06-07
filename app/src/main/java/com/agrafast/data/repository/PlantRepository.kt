@@ -1,4 +1,4 @@
-package com.agrafast.domain.repository
+package com.agrafast.data.repository
 
 import android.util.Log
 import com.agrafast.data.network.service.PlantApiService
@@ -73,16 +73,13 @@ class PlantRepository @Inject constructor(
       emit(UIState.Error("Failed to get prediction"))
       return@flow
     }
-    Log.d("TAG", "getPredictionDisease: $diseaseName")
     try {
       val res =
         plantRef.document(plant.id).collection("disease").whereEqualTo("name", diseaseName).get()
           .await().documents.first()
-      Log.d("TAG", "getPredictionDisease: $res")
       val data = res.toObject(PlantDisease::class.java)
       emit(UIState.Success(data))
     } catch (e: Exception) {
-      Log.d("TAG", "getPredictionDisease: ${e.message}")
       emit(UIState.Error(e.message!!))
     }
   }

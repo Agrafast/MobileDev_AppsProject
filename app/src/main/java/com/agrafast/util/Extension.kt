@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import com.agrafast.data.firebase.model.FirebaseObject
 import com.agrafast.domain.UIState
 import com.google.firebase.firestore.CollectionReference
@@ -15,7 +14,6 @@ import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.io.ByteArrayOutputStream
@@ -36,10 +34,10 @@ fun <T : FirebaseObject> CollectionReference.addSnapshotListenerFlow(dataType: C
           return
         }
         if (snapshot?.documents != null) {
-          Log.d("Extension", "onEvent: ${snapshot.documents}")
+//          Log.d("Extension", "onEvent: ${snapshot.documents}")
           val list = snapshot.documents.mapNotNull { docSnapshot ->
             val obj = docSnapshot.toObject(dataType)
-            obj!!.addId(docSnapshot.id) as T
+            obj!!.setId(docSnapshot.id) as T
           }
           trySend(UIState.Success(list))
         }
