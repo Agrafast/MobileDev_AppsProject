@@ -54,7 +54,7 @@ fun SplashScreen(
 
   // SideEffects
   LaunchedEffect(Unit) {
-    viewModel.signIn()
+    viewModel.signIn(appState.coroutineScope)
   }
   LaunchedEffect(userState.value) {
     if (userState.value is AuthState.Authenticated) {

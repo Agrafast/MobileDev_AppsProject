@@ -62,4 +62,7 @@ class GlobalViewModel @Inject constructor(
     return (tutorialPlantsState.value as UIState.Success<List<Plant>>).data!!
   }
 
+  fun getShowDetection(name: String): Boolean{
+    return listOf("maize", "rice", "potato").contains(name)
+  }
 }

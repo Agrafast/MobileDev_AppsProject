@@ -6,7 +6,7 @@ import com.agrafast.data.firebase.model.User
 import com.agrafast.data.repository.UserRepository
 import com.agrafast.domain.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.launch
@@ -19,9 +19,13 @@ class AuthViewModel @Inject constructor(
   var userState: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Loading)
     private set
 
-  fun signIn(email: String = "xmirz@gmail.com", password: String = "xmirzz") {
+  fun signIn(
+    scope: CoroutineScope,
+    email: String = "xmirz@gmail.com",
+    password: String = "xmirzz"
+  ) {
     viewModelScope.launch {
-      userState.emitAll(userRepository.signInAndGetData(email, password))
+      userState.emitAll(userRepository.signInAndGetData( email, password))
     }
   }
 }

@@ -5,8 +5,16 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import com.agrafast.data.firebase.model.FirebaseObject
+import com.agrafast.data.firebase.model.User
+import com.agrafast.domain.AuthState
 import com.agrafast.domain.UIState
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
@@ -16,6 +24,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.channelFlow
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -64,6 +73,31 @@ fun <T> DocumentReference.addSnapshotListenerFlow(dataType: Class<T>): Flow<UISt
     val registration = addSnapshotListener(listener)
     awaitClose { registration.remove() }
   }
+
+fun DocumentReference.addUserSnapshotListenerFlow(
+  userId: String,
+  email: String
+): Flow<AuthState<User>> =
+  callbackFlow {
+    val listener = object : EventListener<DocumentSnapshot> {
+      override fun onEvent(snapshot: DocumentSnapshot?, error: FirebaseFirestoreException?) {
+        if (error != null) {
+          trySend(AuthState.Error(error.message.toString()))
+          return
+        }
+        if (snapshot != null && snapshot.exists()) {
+          val data = snapshot.toObject(User::class.java)?.setId(userId)?.setEmail(email)
+          trySend(AuthState.Authenticated(data))
+        }
+        if (snapshot != null && !snapshot.exists()) {
+          trySend(AuthState.UserDataNotExist)
+        }
+      }
+    }
+    val registration = addSnapshotListener(listener)
+    awaitClose { registration.remove() }
+  }
+
 
 val timeStamp: String = SimpleDateFormat("dd-MMM-yyy", Locale("id")).format(Date())
 
