@@ -1,6 +1,7 @@
 package com.agrafast.data.repository
 
 import android.util.Log
+import com.agrafast.data.firebase.model.Plant
 import com.agrafast.data.firebase.model.User
 import com.agrafast.domain.AuthState
 import com.agrafast.domain.UIState
@@ -8,6 +9,7 @@ import com.agrafast.util.addUserSnapshotListenerFlow
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -92,9 +94,10 @@ class UserRepository {
       UIState.Error(e.message.toString())
     }
   }
+
   suspend fun deleteFromUserPlant(userId: String, plantId: String): UIState<Nothing> {
     return try {
-      val task = usersRef.document(userId).collection("plants").document(plantId).delete().await()
+      usersRef.document(userId).collection("plants").document(plantId).delete().await()
       UIState.Success(null)
     } catch (e: Exception) {
       UIState.Error(e.message.toString())
@@ -105,6 +108,20 @@ class UserRepository {
     return try {
       val res = usersRef.document(userId).collection("plants").document(plantId).get().await()
       UIState.Success(res.exists())
+    } catch (e: Exception) {
+      UIState.Error(e.message.toString())
+    }
+  }
+
+  suspend fun getUserPlants(userId: String): UIState<List<Plant>> {
+    return try {
+      val plantIds = usersRef.document(userId).collection("plants").get().await().documents.map {
+        it.id
+      }
+      val plants = plantsRef.whereIn(FieldPath.documentId(), plantIds).get().await().mapNotNull {
+        it.toObject(Plant::class.java).setId(it.id)
+      }
+      UIState.Success(plants)
     } catch (e: Exception) {
       UIState.Error(e.message.toString())
     }

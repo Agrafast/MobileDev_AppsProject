@@ -43,10 +43,8 @@ fun <T : FirebaseObject> CollectionReference.addSnapshotListenerFlow(dataType: C
           return
         }
         if (snapshot?.documents != null) {
-//          Log.d("Extension", "onEvent: ${snapshot.documents}")
-          val list = snapshot.documents.mapNotNull { docSnapshot ->
-            val obj = docSnapshot.toObject(dataType)
-            obj!!.setId(docSnapshot.id) as T
+          val list: List<T> = snapshot.documents.mapNotNull { docSnapshot ->
+            docSnapshot.toObject(dataType)!!.setId(docSnapshot.id) as T
           }
           trySend(UIState.Success(list))
         }

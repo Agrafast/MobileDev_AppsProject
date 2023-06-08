@@ -50,7 +50,7 @@ class DetailPlantViewModel @Inject constructor(
 
   fun deleteFromUserPlant(appState: AppState, plantId: String) {
     viewModelScope.launch {
-      val res = userRepository.addToUserPlant(appState.user.id, plantId)
+      val res = userRepository.deleteFromUserPlant(appState.user.id, plantId)
       if(res is UIState.Success){
         isInUserPlantState.emit(false)
         appState.showSnackbar("Berhasil menghapus dari tanamanku")

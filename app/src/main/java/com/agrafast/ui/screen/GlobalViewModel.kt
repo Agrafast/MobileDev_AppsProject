@@ -37,10 +37,6 @@ class GlobalViewModel @Inject constructor(
     detectionPlant = plant
   }
 
-  fun removeMyPlant(plant: Plant) {
-    myPlants.value = myPlants.value.filter { it != plant }
-    Log.d("TAG", "removeMyPlant: ${myPlants.value.size}")
-  }
 
   // TODO From API
   fun fetchPredictionPlants(): List<Plant> {
