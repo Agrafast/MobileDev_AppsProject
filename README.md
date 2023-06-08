@@ -24,18 +24,18 @@
 
 ## TODO
 - Logo
-- Splash Screen
+- Splash Screen #Done
 - Integrate HomeScreen
   > Ambil data list tanaman dari firebase #Done
-  > Ambil data user  dari firebase
+  > Ambil data user  dari firebase #WIP by Hafiz
 
-- Integrate DetailScreen
+- Integrate DetailScreen #Done
   > Ambil data detail dan tutorial tanamana dari firebase #Done
-  > Tambahkan fungsionalitas untuk favorite/myplant
+  > Tambahkan fungsionalitas untuk favorite/myplant #Done
 
 - Integrate UserPlantScreen
-  > Ambil data dari firebase
-  > Tambahkan fungsionalitas untuk hapus favorite
+  > Ambil data dari firebase #Done
+  > Tambahkan fungsionalitas untuk hapus favorite #Done
 
 - Offline first (HomeScreen dan UserPlantScreen)
   > Fungsionalitas untuk simpan data ke local

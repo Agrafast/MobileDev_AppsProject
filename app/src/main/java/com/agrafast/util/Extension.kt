@@ -5,26 +5,21 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import com.agrafast.data.firebase.model.FirebaseObject
 import com.agrafast.data.firebase.model.User
 import com.agrafast.domain.AuthState
 import com.agrafast.domain.UIState
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -129,6 +124,20 @@ suspend fun File.reduceFileImage(max: Int = 1000000): File {
     streamLength = bmpPicByteArray.size
     compressQuality -= 5
   } while (streamLength > max && compressQuality > 50)
-  bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, FileOutputStream(this))
+  withContext(Dispatchers.IO) {
+    bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, FileOutputStream(this@reduceFileImage))
+  }
   return this
+}
+
+fun String.formatWithOrdered(): String {
+  val addNewLine = Regex("""(\d+\.)""")
+  var strFormat = this.replace(addNewLine, "\n$1")
+
+  val removeDoubleNewLine = Regex("""\n+""")
+  strFormat=strFormat.replace(removeDoubleNewLine, "\n")
+
+  val removeFirstNewLine = Regex("""^\n(.*)""")
+
+  return strFormat.replace(removeFirstNewLine, "$1")
 }

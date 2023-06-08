@@ -27,6 +27,7 @@ fun PlantTitle(
   subtitle: String,
   isInMyPlant: Boolean = false,
   showDetection: Boolean = false,
+  showAddToUserPlant: Boolean = true,
   onDetectClick: () -> Unit = {},
   onToMyPlantClick: () -> Unit = {}
 ) {
@@ -76,17 +77,19 @@ fun PlantTitle(
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
           )
         }
-        Image(
-          modifier = Modifier
-            .size(32.dp)
-            .clickable(
-              indication = null,
-              interactionSource = MutableInteractionSource()
-            ) { onToMyPlantClick() },
-          painter = painterResource(id = myPlantRes),
-          contentDescription = "Tambah ke tanamnaku",
-          colorFilter = ColorFilter.tint(myPlantTint)
-        )
+        if(showAddToUserPlant){
+          Image(
+            modifier = Modifier
+              .size(32.dp)
+              .clickable(
+                indication = null,
+                interactionSource = MutableInteractionSource()
+              ) { onToMyPlantClick() },
+            painter = painterResource(id = myPlantRes),
+            contentDescription = "Tambah ke tanamnaku",
+            colorFilter = ColorFilter.tint(myPlantTint)
+          )
+        }
       }
     }
   }
