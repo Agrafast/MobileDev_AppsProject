@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.agrafast.domain.UIState
 import com.agrafast.data.firebase.model.Plant
 import com.agrafast.data.firebase.model.PlantDisease
-import com.agrafast.domain.repository.PlantRepository
+import com.agrafast.data.repository.PlantRepository
 import com.agrafast.util.createFileFromUri
 import com.agrafast.util.reduceFileImage
 import dagger.hilt.android.lifecycle.HiltViewModel

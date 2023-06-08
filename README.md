@@ -20,18 +20,32 @@
 - navArgument still dummy
 
 
+
+
 ## TODO
+- Logo
+- Splash Screen
 - Integrate HomeScreen
-  > Ambil data list tanaman dari firebase (Hafiz)
+  > Ambil data list tanaman dari firebase #Done
   > Ambil data user  dari firebase
+
 - Integrate DetailScreen
-  > Ambil data detail dan tutorial tanamana dari firebase
+  > Ambil data detail dan tutorial tanamana dari firebase #Done
   > Tambahkan fungsionalitas untuk favorite/myplant
+
 - Integrate UserPlantScreen
   > Ambil data dari firebase
   > Tambahkan fungsionalitas untuk hapus favorite
+
 - Offline first (HomeScreen dan UserPlantScreen)
   > Fungsionalitas untuk simpan data ke local
   > Ketika data local tidak ada, baru check ke internet
   > Ketika di background tetap mengambil dari internet dan membandingkan jika ada perubahan
+
 - Autentikasi
+
+### Optional
+- Resize Image before go to server
+- Elevation based recomedation
+- OnBoarding
+- 

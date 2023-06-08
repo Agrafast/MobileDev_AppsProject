@@ -10,11 +10,12 @@ import com.agrafast.R
 
 // Set of Material typography styles to start with
 
-//val Poppins = FontFamily(
-//  Font(R.font.poppins_regular),
-//  Font(R.font.poppins_medium, FontWeight.Medium),
-//  Font(R.font.poppins_semibold, FontWeight.SemiBold),
-//)
+val Poppins = FontFamily(
+  Font(R.font.poppins_regular),
+  Font(R.font.poppins_medium, FontWeight.Medium),
+  Font(R.font.poppins_semibold, FontWeight.SemiBold),
+  Font(R.font.poppins_bold, FontWeight.Bold),
+)
 
 val Inter = FontFamily(
   Font(R.font.inter_regular),
