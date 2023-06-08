@@ -121,7 +121,7 @@ fun AgraFastApp(
         UserPlantListScreen(appState, viewModel)
       }
       composable(Screen.Profil.route) {
-        ProfileScreen()
+        ProfileScreen(appState = appState)
       }
       composable(route = Screen.PlantDetail.route) {
         PlantDetailScreen(appState, viewModel)
