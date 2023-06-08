@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,9 +49,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.agrafast.AppState
 import com.agrafast.R
 import com.agrafast.domain.UIState
 import com.agrafast.data.firebase.model.Plant
+import com.agrafast.data.firebase.model.User
+import com.agrafast.rememberAppState
 import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
@@ -58,7 +63,7 @@ import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
 fun HomeScreen(
-  navController: NavController,
+  appState : AppState,
   sharedViewModel: GlobalViewModel,
 //  viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -70,46 +75,45 @@ fun HomeScreen(
     sharedViewModel.fetchTutorialPlants()
   }
   LazyColumn(
-    contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
+    contentPadding = PaddingValues(bottom = 16.dp)
   ) {
-    item { UserInfo() }
+    item { UserInfo(appState.user) }
     item { SectionTitle(text = stringResource(id = R.string.disease_detector_title)) }
     item {
       DiseaseDetectionComp(
         plants = sharedViewModel.fetchPredictionPlants(),
         onClickItem = {
           sharedViewModel.setCurrentDetectionPlant(it)
-          navController.navigate(route = Screen.PlantDiseaseDetection.route)
+          appState.navController.navigate(route = Screen.PlantDiseaseDetection.route)
         })
     }
     item {
       SectionTitle(
         text = stringResource(id = R.string.plant_stuff_title), showMore = true,
-        onClickMore = { navController.navigate(Screen.PlantList.route) })
+        onClickMore = { appState.navController.navigate(Screen.PlantList.route) })
     }
     item {
       PlantStuffComp(
         plantsState = tutorialPlantsState.value,
         onClickItem = {
           sharedViewModel.setCurrentTutorialPlant(it)
-          navController.navigate(route = Screen.PlantDetail.route)
+          appState.navController.navigate(route = Screen.PlantDetail.route)
         })
     }
   }
 }
 
 @Composable
-fun UserInfo() {
+fun UserInfo(user: User) {
   Row(
     modifier = Modifier
-      .height(64.dp)
-      .padding(horizontal = 16.dp),
+      .padding(vertical = 16.dp, horizontal = 16.dp),
     verticalAlignment = Alignment.CenterVertically
   ) {
-    Box(
-      modifier = Modifier
-        .size(64.dp)
-        .background(color = MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+    Surface(
+      modifier = Modifier.size(48.dp),
+      tonalElevation = 4.dp,
+      shape = CircleShape
     ) {
       Icon(
         Icons.Outlined.Person,
@@ -124,12 +128,12 @@ fun UserInfo() {
       verticalArrangement = Arrangement.Center
     ) {
       Text(
-        text = "Indi nih Boss",
+        text = user.name,
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.fillMaxWidth()
       )
       Text(
-        text = "Senggol dongg!!!!!",
+        text = user.email,
         style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier.fillMaxWidth()
       )
@@ -287,6 +291,6 @@ fun PlantCard(plant: Plant, onClickItem: (Plant) -> Unit) {
 fun DefaultPreview() {
   AgraFastTheme {
     val viewModel: GlobalViewModel = viewModel()
-    HomeScreen(rememberNavController(), viewModel)
+    HomeScreen(rememberAppState(), viewModel)
   }
 }
