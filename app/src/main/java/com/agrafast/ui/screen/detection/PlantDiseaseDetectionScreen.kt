@@ -67,6 +67,7 @@ import com.agrafast.ui.theme.AgraFastTheme
 import com.agrafast.ui.theme.Gray200
 import com.agrafast.util.HEALTHY_NAME
 import com.agrafast.util.createTempFile
+import com.agrafast.util.formatWithOrdered
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -336,19 +337,19 @@ fun PredictedDetailComp(predictedDiseaseState: State<UIState<PlantDisease>>) {
       }
       ExpandableWithDivider(
         title = "Penyebab",
-        description = disease.cause,
+        description = disease.cause.formatWithOrdered(),
         defaultState = true,
         isLast = false
       )
       ExpandableWithDivider(
         title = "Pengendalian",
-        description = disease.treatment,
+        description = disease.treatment.formatWithOrdered(),
         defaultState = false,
         isLast = false
       )
       ExpandableWithDivider(
         title = "Pengobatan",
-        description = disease.medicine,
+        description = disease.medicine.formatWithOrdered(),
         defaultState = false,
         isLast = true
       )

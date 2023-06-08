@@ -42,6 +42,7 @@ import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 import com.agrafast.ui.theme.Gray200
+import com.agrafast.util.formatWithOrdered
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -147,7 +148,7 @@ fun PlantingTutorial(tutorialStepsState: State<UIState<List<TutorialStep>>>) {
       tutorialSteps.mapIndexed { index, it ->
         ExpandableWithDivider(
           title = "${it.tahap_id}. ${it.tahapan_menanam}",
-          description = it.detail_kegiatan,
+          description = it.detail_kegiatan.formatWithOrdered(),
           defaultState = index == 0,
           isLast = index > tutorialSteps.size - 2
         )
