@@ -176,7 +176,7 @@ fun PlantDiseaseDetectionScreen(
           })
       }
       stickyHeader {
-        PlantTitle("Deteksi penyakit pada ${plant.title}", plant.botanical_name)
+        PlantTitle("Deteksi penyakit pada ${plant.title}", plant.botanical_name, showAddToUserPlant = false)
       }
       item {
         val showPredicted = predictedDiseaseState.value is UIState.Success<PlantDisease>
