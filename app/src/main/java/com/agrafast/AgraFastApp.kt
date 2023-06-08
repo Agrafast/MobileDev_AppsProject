@@ -112,7 +112,7 @@ fun AgraFastApp(
         SplashScreen(appState = appState)
       }
       composable(Screen.Home.route) {
-        HomeScreen(appState.navController, viewModel)
+        HomeScreen(appState, viewModel)
       }
       composable(Screen.PlantList.route) {
         PlantListScreen(appState.navController, viewModel)
