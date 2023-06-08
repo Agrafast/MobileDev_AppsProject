@@ -1,12 +1,16 @@
 package com.agrafast.ui.component
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,20 +21,30 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.agrafast.R
 import com.agrafast.data.firebase.model.Plant
 import com.agrafast.domain.UIState
+import com.agrafast.ui.theme.AgraFastTheme
+import com.agrafast.ui.theme.Gray200
+import com.agrafast.ui.theme.Gray600
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -46,7 +60,11 @@ fun PlantList(
     ) {
       itemsIndexed(plants, key = { _, it -> it.id }) { index, plant ->
         if (onDismiss == null) {
-          PlantListItem(plant = plant, onClick = onItemClick)
+          PlantListItem(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            plant = plant,
+            onClick = onItemClick
+          )
         } else {
           SwipeablePlantListItem(
             modifier = Modifier.animateItemPlacement(),
@@ -76,15 +94,45 @@ fun SwipeablePlantListItem(
   onItemClick: (Plant) -> Unit,
   onDismiss: (plant: Plant, index: Int) -> Unit
 ) {
-  val dismissState = rememberDismissState(confirmValueChange = { dismissValue ->
+  val dismissState = rememberDismissState(positionalThreshold = {
+    100.dp.toPx()
+  }, confirmValueChange = { dismissValue ->
     if (dismissValue == DismissValue.DismissedToEnd) onDismiss(plant, index)
     true
   })
-  SwipeToDismiss(modifier = modifier,
+  SwipeToDismiss(
+    modifier = modifier
+      .padding(horizontal = 16.dp)
+      .clip(RoundedCornerShape(8.dp)),
     state = dismissState,
     directions = setOf(DismissDirection.StartToEnd),
     background = {
-
+      val color = animateColorAsState(
+        when (dismissState.targetValue) {
+          DismissValue.Default -> Gray200
+          DismissValue.DismissedToEnd -> Color.Red
+          else -> Color.Transparent
+        }
+      )
+      val colorIcon = animateColorAsState(
+        when (dismissState.targetValue) {
+          DismissValue.DismissedToEnd -> Color.White
+          else -> Gray600
+        }
+      )
+      Box(
+        Modifier
+          .fillMaxSize()
+          .background(color = color.value)
+          .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.CenterStart
+      ) {
+        Icon(
+          painter = painterResource(id = R.drawable.ic_trash),
+          contentDescription = "Delete",
+          tint = colorIcon.value
+        )
+      }
     },
     dismissContent = {
       PlantListItem(plant = plant, onClick = onItemClick)
@@ -92,14 +140,13 @@ fun SwipeablePlantListItem(
 }
 
 @Composable
-fun PlantListItem(plant: Plant, onClick: (Plant) -> Unit) {
+fun PlantListItem(modifier: Modifier = Modifier, plant: Plant, onClick: (Plant) -> Unit) {
   Surface(
-    shape = RoundedCornerShape(8.dp),
     tonalElevation = 4.dp,
-    modifier = Modifier
-      .padding(horizontal = 16.dp)
+    modifier = modifier
       .height(96.dp)
       .fillMaxWidth()
+      .clip(RoundedCornerShape(8.dp))
       .clickable {
         onClick(plant)
       },
@@ -141,10 +188,10 @@ fun PlantListItem(plant: Plant, onClick: (Plant) -> Unit) {
   }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun PlantListItemPreview() {
-//  AgraFastTheme {
-//    PlantListItem(plant = GlobalViewModel().g, {})
-//  }
-//}
+@Preview(showBackground = true)
+@Composable
+fun PlantListItemPreview() {
+  AgraFastTheme {
+    PlantListItem(plant = Plant(), onClick = {})
+  }
+}
