@@ -45,8 +45,8 @@ fun UserPlantListScreen(
             sharedViewModel.setCurrentTutorialPlant(it)
             appState.navController.navigate(route = Screen.PlantDetail.route)
           },
-          onDismiss = { plant ->
-            viewModel.deleteFromUserPlant(appState = appState, plantId = plant.id)
+          onDismiss = { plant, index ->
+            viewModel.deleteFromUserPlant(appState = appState, plant = plant, index)
           })
       } else {
         StatusComp(state = userPlantsState.value)

@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
@@ -38,19 +38,20 @@ import com.agrafast.domain.UIState
 fun PlantList(
   plants: List<Plant>,
   onItemClick: (Plant) -> Unit,
-  onDismiss: ((plant: Plant) -> Unit)? = null,
+  onDismiss: ((plant: Plant, index: Int) -> Unit)? = null,
 ) {
   if (plants.isNotEmpty()) {
     LazyColumn(
       modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-      items(plants, key = { it.id }) {
+      itemsIndexed(plants, key = { _, it -> it.id }) { index, plant ->
         if (onDismiss == null) {
-          PlantListItem(plant = it, onClick = onItemClick)
+          PlantListItem(plant = plant, onClick = onItemClick)
         } else {
           SwipeablePlantListItem(
             modifier = Modifier.animateItemPlacement(),
-            plant = it,
+            plant = plant,
+            index = index,
             onItemClick = onItemClick,
             onDismiss = onDismiss
           )
@@ -69,16 +70,22 @@ fun PlantList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeablePlantListItem(
-  modifier: Modifier, plant: Plant, onItemClick: (Plant) -> Unit, onDismiss: (plant: Plant) -> Unit
+  modifier: Modifier,
+  plant: Plant,
+  index: Int,
+  onItemClick: (Plant) -> Unit,
+  onDismiss: (plant: Plant, index: Int) -> Unit
 ) {
   val dismissState = rememberDismissState(confirmValueChange = { dismissValue ->
-    if (dismissValue == DismissValue.DismissedToEnd) onDismiss(plant)
+    if (dismissValue == DismissValue.DismissedToEnd) onDismiss(plant, index)
     true
   })
   SwipeToDismiss(modifier = modifier,
     state = dismissState,
     directions = setOf(DismissDirection.StartToEnd),
-    background = {},
+    background = {
+
+    },
     dismissContent = {
       PlantListItem(plant = plant, onClick = onItemClick)
     })
