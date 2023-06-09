@@ -24,9 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.agrafast.AppState
 import com.agrafast.R
 import com.agrafast.data.firebase.model.Plant
 import com.agrafast.domain.UIState
+import com.agrafast.rememberAppState
 import com.agrafast.ui.component.PlantList
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.navigation.Screen
@@ -35,7 +37,7 @@ import com.agrafast.ui.theme.AgraFastTheme
 
 @Composable
 fun PlantListScreen(
-  navController: NavController,
+  appState: AppState,
   sharedViewModel: GlobalViewModel,
 ) {
   val plants = sharedViewModel.getTutorialPlants()
@@ -47,7 +49,7 @@ fun PlantListScreen(
     Column {
       SimpleActionBar(
         title = stringResource(id = R.string.plants),
-        onBackClicked = { navController.navigateUp() })
+        onBackClicked = { appState.navController.navigateUp() })
       Spacer(modifier = Modifier.height(8.dp))
       SearchBox(
         value = searchValue,
@@ -61,7 +63,7 @@ fun PlantListScreen(
       Spacer(modifier = Modifier.height(16.dp))
       PlantList(plantsState, onItemClick = {
         sharedViewModel.setCurrentTutorialPlant(it)
-        navController.navigate(route = Screen.PlantDetail.route)
+        appState.navController.navigate(route = Screen.PlantDetail.route)
       })
     }
   }
@@ -90,6 +92,6 @@ fun SearchBox(value: String, onValueChange: (String) -> Unit) {
 fun DefaultPreview() {
   AgraFastTheme {
     val viewModel: GlobalViewModel = viewModel()
-    PlantListScreen(rememberNavController(), viewModel)
+    PlantListScreen(rememberAppState(), viewModel)
   }
 }

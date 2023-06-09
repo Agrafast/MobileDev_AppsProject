@@ -1,5 +1,6 @@
 package com.agrafast
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -39,7 +40,10 @@ import androidx.navigation.compose.rememberNavController
 import com.agrafast.data.firebase.model.User
 import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
+import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
+import com.agrafast.ui.screen.authetication.login.LoginScreen
+import com.agrafast.ui.screen.authetication.register.RegisterScreen
 import com.agrafast.ui.screen.detail.PlantDetailScreen
 import com.agrafast.ui.screen.detection.PlantDiseaseDetectionScreen
 import com.agrafast.ui.screen.home.HomeScreen
@@ -48,8 +52,6 @@ import com.agrafast.ui.screen.profil.ProfileScreen
 import com.agrafast.ui.screen.splash.SplashScreen
 import com.agrafast.ui.screen.usersplant.UserPlantListScreen
 import com.agrafast.ui.theme.AgraFastTheme
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -89,11 +91,13 @@ fun AgraFastApp(
       BottomBarComponent(navItems, isVisible, currentRoute) {
         appState.navController.apply {
           popBackStack()
-          navigate(it) }
+          navigate(it)
+        }
       }
     },
     floatingActionButton = {
-      AnimatedVisibility(visible = showFab.value,
+      AnimatedVisibility(
+        visible = showFab.value,
         enter = fadeIn(),
         exit = fadeOut(),
       ) {
@@ -104,32 +108,39 @@ fun AgraFastApp(
     }
   ) { innerPadding ->
     val viewModel: GlobalViewModel = hiltViewModel()
+    val authViewModel: AuthViewModel = hiltViewModel()
     NavHost(
       navController = appState.navController,
       startDestination = Screen.Splash.route, modifier = Modifier.padding(innerPadding)
     ) {
-      composable(Screen.Splash.route){
+      composable(route = Screen.Splash.route) {
         SplashScreen(appState = appState)
       }
-      composable(Screen.Home.route) {
-        HomeScreen(appState, viewModel)
+      composable(Screen.Login.route) {
+        LoginScreen(appState = appState, authViewModel = authViewModel)
       }
-      composable(Screen.PlantList.route) {
-        PlantListScreen(appState.navController, viewModel)
+      composable(Screen.Register.route) {
+        RegisterScreen(appState = appState, authViewModel = authViewModel)
       }
-      composable(Screen.UserPlantList.route) {
-        UserPlantListScreen(appState, viewModel)
+      composable(route = Screen.Home.route) {
+        HomeScreen(appState = appState, sharedViewModel = viewModel, authViewModel = authViewModel)
       }
-      composable(Screen.Profil.route) {
+      composable(route = Screen.PlantList.route) {
+        PlantListScreen(appState = appState, sharedViewModel = viewModel)
+      }
+      composable(route = Screen.UserPlantList.route) {
+        UserPlantListScreen(appState = appState, sharedViewModel = viewModel)
+      }
+      composable(route = Screen.Profil.route) {
         ProfileScreen(appState = appState)
       }
       composable(route = Screen.PlantDetail.route) {
-        PlantDetailScreen(appState, viewModel)
+        PlantDetailScreen(appState = appState, sharedViewModel = viewModel)
       }
-      composable(Screen.PlantDiseaseDetection.route) {
+      composable(route = Screen.PlantDiseaseDetection.route) {
         PlantDiseaseDetectionScreen(
-          appState,
-          viewModel,
+          appState = appState,
+          sharedViewModel = viewModel,
           setFabBehavior = setFabBehavior,
         )
       }
@@ -173,9 +184,12 @@ class AppState(
 ) {
   lateinit var user: User
     private set
-  fun setUser(user: User){
+
+  fun setUser(user: User) {
+    Log.d("TAG", "setUser: $user")
     this.user = user
   }
+
 
   fun showSnackbar(
     message: String, actionLabel: String? = null,

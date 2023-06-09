@@ -8,6 +8,7 @@ import com.agrafast.domain.UIState
 import com.agrafast.util.addUserSnapshotListenerFlow
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
@@ -23,6 +24,49 @@ class UserRepository {
   private val usersRef = db.collection("users")
   private val plantsRef = db.collection("plants")
 
+  fun signUpAndCreateData(
+    name: String,
+    email: String,
+    phone: String,
+    password: String,
+  ): MutableStateFlow<AuthState<User>> {
+    val result: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Loading)
+    auth.createUserWithEmailAndPassword(email, password)
+      .addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+          val authUser = auth.currentUser!!
+          val userMap = hashMapOf(
+            "name" to name,
+            "phone" to phone,
+          )
+          usersRef.document(authUser.uid).set(userMap).addOnCompleteListener {
+            if (it.isSuccessful) {
+              val user = User(authUser.uid, name, authUser.email!!, phone = phone)
+              result.tryEmit(AuthState.Authenticated(user))
+            } else {
+              result.tryEmit(AuthState.UserDataNotExist)
+            }
+          }
+        } else {
+          when (task.exception) {
+            is FirebaseAuthUserCollisionException -> {
+              result.tryEmit(AuthState.EmailExist)
+            }
+
+            is FirebaseAuthInvalidCredentialsException -> {
+              result.tryEmit(AuthState.EmailMalformed)
+            }
+
+            else -> {
+              Log.d("TAG", "signInAndGetData: taskFailed")
+              result.tryEmit(AuthState.Unauthenticated)
+            }
+          }
+        }
+      }
+    return result
+  }
+
 
   // First, login with email and password
   // Then, get user data from firestore
@@ -33,22 +77,20 @@ class UserRepository {
     val result: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Loading)
     auth.signInWithEmailAndPassword(email, password)
       .addOnCompleteListener { task ->
-        val authUser = auth.currentUser
-        val userId = authUser?.uid!!
-        Log.d("TAG", "signInAndGetData: taskStart")
         if (task.isSuccessful) {
-          Log.d("TAG", "signInAndGetData: taskSuccess")
-          usersRef.document(userId).get().addOnCompleteListener {
+          val authUser = auth.currentUser!!
+          usersRef.document(authUser.uid).get().addOnCompleteListener {
             if (it.isSuccessful && it.result.exists()) {
               try {
-                val user = it.result.toObject<User>()?.setId(userId)?.setEmail(authUser.email!!)
+                val user =
+                  it.result.toObject<User>()?.setId(authUser.uid)?.setEmail(authUser.email!!)
                 result.tryEmit(AuthState.Authenticated(user))
                 Log.d("TAG", "signInAndGetData: authDataSuccess")
               } catch (e: Exception) {
                 result.tryEmit(AuthState.Error(e.message.toString()))
                 Log.d("TAG", "signInAndGetData: ${e.message.toString()}")
               }
-            } else if (it.isSuccessful && it.result.exists()) {
+            } else if (it.isSuccessful && !it.result.exists()) {
               result.tryEmit(AuthState.UserDataNotExist)
             } else {
               result.tryEmit(AuthState.Error(it.exception?.message.toString()))
@@ -70,10 +112,17 @@ class UserRepository {
               result.tryEmit(AuthState.Unauthenticated)
             }
           }
-
         }
       }
     return result
+  }
+
+  fun signOut() {
+    Firebase.auth.signOut()
+  }
+
+  fun checkSession(): Boolean {
+    return Firebase.auth.currentUser != null
   }
 
   fun getUserData(): Flow<AuthState<User>> {
