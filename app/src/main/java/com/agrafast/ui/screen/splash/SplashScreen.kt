@@ -54,24 +54,27 @@ fun SplashScreen(
 
   // SideEffects
   LaunchedEffect(Unit) {
-    viewModel.signIn(appState.coroutineScope)
+    viewModel.checkSession()
+//    viewModel.signIn()
   }
   LaunchedEffect(userState.value) {
     if (userState.value is AuthState.Authenticated) {
       val user = (userState.value as AuthState.Authenticated).data!!
       appState.setUser(user)
       routeState.value = Screen.Home.route
+    } else if(userState.value is AuthState.Unauthenticated){
+      routeState.value = Screen.Login.route
     }
   }
-  // Launch when animation Finished and fetchUserDataFinished
+  // Launch when animation Finished and fetch UserDataFinished
   LaunchedEffect(lottieFinishedState.value, routeState.value){
     if(lottieFinishedState.value && userState.value !is AuthState.Loading){
-      appState.navController.navigate(routeState.value) {
-        popUpTo(Screen.Splash.route) {
-          inclusive = true
-        }
+    appState.navController.navigate(routeState.value) {
+      popUpTo(Screen.Splash.route) {
+        inclusive = true
       }
     }
+  }
   }
   Box(
     modifier = Modifier

@@ -6,7 +6,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -46,38 +45,46 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.agrafast.AppState
 import com.agrafast.R
-import com.agrafast.domain.UIState
 import com.agrafast.data.firebase.model.Plant
 import com.agrafast.data.firebase.model.User
+import com.agrafast.domain.UIState
 import com.agrafast.rememberAppState
 import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.navigation.Screen
+import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
 
 @Composable
 fun HomeScreen(
-  appState : AppState,
+  appState: AppState,
   sharedViewModel: GlobalViewModel,
-//  viewModel: HomeViewModel = hiltViewModel()
+  authViewModel: AuthViewModel,
 ) {
 
   val tutorialPlantsState = sharedViewModel.tutorialPlantsState.collectAsState()
 
   // SideEffects
-  LaunchedEffect(Unit){
+  LaunchedEffect(Unit) {
     sharedViewModel.fetchTutorialPlants()
   }
   LazyColumn(
     contentPadding = PaddingValues(bottom = 16.dp)
   ) {
-    item { UserInfo(appState.user) }
+    item {
+      UserInfo(user = appState.user, modifier = Modifier.clickable {
+        authViewModel.signOut()
+        appState.navController.navigate(Screen.Login.route) {
+          popUpTo(Screen.Home.route) {
+            inclusive = true
+          }
+        }
+      })
+    }
     item { SectionTitle(text = stringResource(id = R.string.disease_detector_title)) }
     item {
       DiseaseDetectionComp(
@@ -104,9 +111,9 @@ fun HomeScreen(
 }
 
 @Composable
-fun UserInfo(user: User) {
+fun UserInfo(modifier: Modifier = Modifier, user: User) {
   Row(
-    modifier = Modifier
+    modifier = modifier
       .padding(vertical = 16.dp, horizontal = 16.dp),
     verticalAlignment = Alignment.CenterVertically
   ) {
@@ -242,7 +249,7 @@ fun DiseaseDetectionPlantCard(plant: Plant, height: Dp, onClickItem: (Plant) -> 
 @Composable
 fun PlantStuffComp(plantsState: UIState<List<Plant>>, onClickItem: (Plant) -> Unit) {
   if (plantsState is UIState.Success) {
-    val plants : List<Plant> = plantsState.data!!.subList(0,6)
+    val plants: List<Plant> = plantsState.data!!.subList(0, 6)
     LazyRow(
       horizontalArrangement = Arrangement.spacedBy(12.dp),
       contentPadding = PaddingValues(horizontal = 16.dp)
@@ -291,6 +298,7 @@ fun PlantCard(plant: Plant, onClickItem: (Plant) -> Unit) {
 fun DefaultPreview() {
   AgraFastTheme {
     val viewModel: GlobalViewModel = viewModel()
-    HomeScreen(rememberAppState(), viewModel)
+    val authViewModel: AuthViewModel = viewModel()
+    HomeScreen(rememberAppState(), viewModel, authViewModel)
   }
 }

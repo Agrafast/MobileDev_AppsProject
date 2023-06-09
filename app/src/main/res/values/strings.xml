@@ -1,13 +1,16 @@
 <resources>
-  <string name="app_name">AgraFast</string>
-  <string name="home">Beranda</string>
-  <string name="profile">Profil</string>
-  <string name="user_plant">Tanamanku</string>
-  <string name="disease_detector_title">Deteksi Penyakit</string>
-  <string name="plant_stuff_title">Tanam Keberkahan</string>
+    <string name="app_name">AgraFast</string>
+    <string name="home">Beranda</string>
+    <string name="profile">Profil</string>
+    <string name="user_plant">Tanamanku</string>
+    <string name="disease_detector_title">Deteksi Penyakit</string>
+    <string name="plant_stuff_title">Tanam Keberkahan</string>
     <string name="plants">Tanaman</string>
     <string name="search_plant">Cari tanaman</string>
     <string name="my_plant">Tanamanku</string>
     <string name="plant_tutorial">Cara bertanam</string>
     <string name="no_camera_access">Aplikasi tidak memiliki akses kamera.</string>
+    <string name="welcome_text">Welcome to Agrafast App</string>
+    <string name="no_internet">\"Tidak ada akses internet\"</string>
+    <string name="login">Masuk</string>
 </resources>

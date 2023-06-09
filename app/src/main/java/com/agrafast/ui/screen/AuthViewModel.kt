@@ -6,7 +6,6 @@ import com.agrafast.data.firebase.model.User
 import com.agrafast.data.repository.UserRepository
 import com.agrafast.domain.AuthState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.launch
@@ -16,16 +15,46 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
   private val userRepository: UserRepository
 ) : ViewModel() {
-  var userState: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Loading)
+
+
+  var userState: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Unauthenticated)
     private set
 
+  fun signUp(
+    name: String,
+    email: String,
+    phone: String,
+    password: String,
+  ){
+    viewModelScope.launch {
+      userState.emitAll(userRepository.signUpAndCreateData(name, email, phone, password))
+    }
+  }
   fun signIn(
-    scope: CoroutineScope,
-    email: String = "xmirz@gmail.com",
-    password: String = "xmirzz"
+    email: String,
+    password: String
   ) {
     viewModelScope.launch {
-      userState.emitAll(userRepository.signInAndGetData( email, password))
+      userState.emitAll(userRepository.signInAndGetData(email, password))
+    }
+  }
+
+  fun signOut() {
+    viewModelScope.launch {
+      userRepository.signOut()
+      userState.emit(AuthState.Unauthenticated)
+    }
+  }
+
+  fun checkSession() {
+    val sessionExist = userRepository.checkSession()
+    viewModelScope.launch {
+      if (sessionExist) {
+        val res = userRepository.getUserData()
+        userState.emitAll(res)
+      } else {
+        userState.emit(AuthState.Unauthenticated)
+      }
     }
   }
 }

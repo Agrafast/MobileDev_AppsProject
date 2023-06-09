@@ -50,7 +50,7 @@ fun ProfileScreen(
                 .padding(16.dp),
         ) {
             SimpleTopBar(stringResource(id = R.string.my_plant))
-            ProfilHeader(modifier = Modifier.padding(top = 24.dp, bottom = 32.dp), ser = appState.user)
+            ProfilHeader(modifier = Modifier.padding(top = 24.dp, bottom = 32.dp),user = appState.user)
             Divider()
             ProfilDetail(appState.user)
             Spacer(modifier = Modifier.padding(top = 24.dp))
@@ -107,7 +107,7 @@ fun ProfilHeader(modifier: Modifier = Modifier, user: User) {
 @Composable
 fun ProfilDetail(user: User){
     Column(Modifier.padding(top = 16.dp)) {
-      // Email Detail
+      //Email Detail
         Text(
             text = "Email",
             style = MaterialTheme.typography.titleMedium,
@@ -122,7 +122,8 @@ fun ProfilDetail(user: User){
 
         Spacer(modifier = Modifier.height(8.dp))
 
-     // Telp Detail
+        //Telp Detail
+
         Text(
             text = "No.Telp",
             style = MaterialTheme.typography.titleMedium,
@@ -136,8 +137,9 @@ fun ProfilDetail(user: User){
         )
 
         Spacer(modifier = Modifier.height(8.dp))
+
         
-         // Alamat Detail
+         //Alamat Detail
         Text(
             text = "Alamat",
             style = MaterialTheme.typography.titleMedium,

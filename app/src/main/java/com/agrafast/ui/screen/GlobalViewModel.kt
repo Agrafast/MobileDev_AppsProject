@@ -1,5 +1,8 @@
 package com.agrafast.ui.screen
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,8 +30,6 @@ class GlobalViewModel @Inject constructor(
   var tutorialPlantsState: MutableStateFlow<UIState<List<Plant>>> =
     MutableStateFlow(UIState.Loading)
     private set
-
-  var myPlants = MutableStateFlow<List<Plant>>(listOf())
 
   fun setCurrentTutorialPlant(plant: Plant?) {
     tutorialPlant = plant

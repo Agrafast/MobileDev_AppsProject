@@ -1,14 +1,27 @@
 package com.agrafast.util
 
-import android.content.ContentResolver
 import android.content.Context
-import android.icu.text.SimpleDateFormat
-import android.net.Uri
-import android.os.Environment
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
-import java.util.Locale
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 
 
+class Helper{
+  companion object {
+    fun isOnline(context: Context): Boolean {
+      val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+      val capabilities =
+        connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+      if (capabilities != null) {
+        if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+          return true
+        } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+          return true
+        } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+          return true
+        }
+      }
+      return false
+    }
+  }
+}
