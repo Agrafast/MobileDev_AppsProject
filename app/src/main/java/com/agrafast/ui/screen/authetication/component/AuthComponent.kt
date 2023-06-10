@@ -110,7 +110,7 @@ fun BannerAuth(modifier: Modifier = Modifier) {
     contentAlignment = Alignment.CenterStart
   ) {
     Image(
-      painter = painterResource(id = R.drawable.authetication_banner),
+      painter = painterResource(id = R.drawable.auth_header),
       contentScale = ContentScale.Crop,
       contentDescription = null,
       modifier = Modifier

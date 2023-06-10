@@ -28,6 +28,21 @@
 
 ### Optional 
 - Resize Image before go to server
-- Elevation based recomedation
+- Elevation based recomedation 
+  ```agsl
+  {
+  "results": [
+    {
+      "elevation": 1608.637939453125,
+      "location": {
+        "lat": 39.7391536,
+        "lng": -104.9847034
+      },
+      "resolution": 4.771975994110107
+    }
+  ],
+  "status": "OK"
+}
+  ```
 - OnBoarding
 - Image Placeholder

@@ -20,7 +20,7 @@ import kotlinx.coroutines.tasks.await
 
 class UserRepository {
   private val auth = Firebase.auth
-  val db = Firebase.firestore
+  private val db = Firebase.firestore
   private val usersRef = db.collection("users")
   private val plantsRef = db.collection("plants")
 
@@ -41,7 +41,7 @@ class UserRepository {
           )
           usersRef.document(authUser.uid).set(userMap).addOnCompleteListener {
             if (it.isSuccessful) {
-              val user = User(authUser.uid, name, authUser.email!!, phone = phone)
+              val user = User(name, phone = phone).setId(authUser.uid).setEmail(authUser.email!!)
               result.tryEmit(AuthState.Authenticated(user))
             } else {
               result.tryEmit(AuthState.UserDataNotExist)
