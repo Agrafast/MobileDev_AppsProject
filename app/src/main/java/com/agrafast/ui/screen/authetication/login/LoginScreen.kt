@@ -1,6 +1,7 @@
 package com.agrafast.ui.screen.authetication.login
 
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,11 +39,6 @@ import com.agrafast.ui.screen.authetication.component.AuthType
 import com.agrafast.ui.theme.AgraFastTheme
 import com.agrafast.util.Helper
 
-//import com.agrafast.domain.FetchStatus
-//import com.agrafast.ui.component.CircularLoading
-//import com.agrafast.ui.component.GoogleComponent
-//import com.agrafast.ui.component.TextLoginWith
-
 @Composable
 fun LoginScreen(
   appState: AppState,
@@ -66,17 +62,24 @@ fun LoginScreen(
   }
 
   LazyColumn {
-    //Text dibawah Banner
     item {
       AuthHeader()
     }
     item {
-      AuthSubHeader()
+      Spacer(modifier = Modifier.height(24.dp))
+    }
+    item {
+      AuthSubHeader("Hi, Welcome Back!", "Sign in to your AgraFast account.")
+    }
+    item {
+      Spacer(modifier = Modifier.height(16.dp))
     }
 
     item {
       val noInternet = stringResource(id = R.string.no_internet)
-      LoginForm(onLoginClick = { email, password ->
+      LoginForm(
+        isLoading = userState.value is AuthState.Loading,
+        onLoginClick = { email, password ->
         if (Helper.isOnline(context)) {
           authViewModel.signIn(email, password)
         } else {
@@ -99,32 +102,46 @@ fun LoginScreen(
 }
 
 @Composable
-fun LoginForm(onLoginClick: (email: String, password: String) -> Unit) {
+fun LoginForm(onLoginClick: (email: String, password: String) -> Unit, isLoading: Boolean) {
   var email by remember { mutableStateOf("") }
+  var isEmailError by remember { mutableStateOf(false) }
   var password by remember { mutableStateOf("") }
+  var isPasswordError by remember { mutableStateOf(false) }
+
+  fun handleClick() {
+    isEmailError = email.trim().isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
+    isPasswordError = password.isEmpty() || password.length < 8
+    if (!isEmailError && !isPasswordError) {
+      onLoginClick(email.trim(), password)
+    }
+  }
   //Email TextField
   Column(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(horizontal = 16.dp)
+      .padding(horizontal = 16.dp),
+    verticalArrangement = Arrangement.spacedBy(24.dp)
   ) {
     InputText(
       value = email,
+      isError = isEmailError,
       label = "Email",
       leadingRes = R.drawable.ic_profile,
       onValueChange = { email = it })
-    Spacer(modifier = Modifier.height(24.dp))
     InputText(
       value = password,
+      isError = isPasswordError,
       label = "Kata sandi",
       leadingRes = R.drawable.ic_password,
       onValueChange = { password = it },
       keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
     )
-    Spacer(modifier = Modifier.height(24.dp))
     PrimaryButton(
+      isLoading = isLoading,
       text = stringResource(R.string.login),
-      onClick = { onLoginClick(email, password) })
+      onClick = {
+        handleClick()
+      })
 
   }
 }

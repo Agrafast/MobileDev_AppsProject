@@ -1,44 +1,39 @@
 package com.agrafast.ui.screen.authetication.register
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.agrafast.AppState
 import com.agrafast.R
 import com.agrafast.data.firebase.model.User
 import com.agrafast.domain.AuthState
+import com.agrafast.rememberAppState
+import com.agrafast.ui.component.InputText
+import com.agrafast.ui.component.PrimaryButton
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.AuthViewModel
-import com.agrafast.ui.screen.authetication.component.BannerAuth
-import com.agrafast.ui.screen.authetication.component.HeadlineText
-import com.agrafast.ui.screen.authetication.component.TextLoginWith
+import com.agrafast.ui.screen.authetication.component.AuthFooter
+import com.agrafast.ui.screen.authetication.component.AuthHeader
+import com.agrafast.ui.screen.authetication.component.AuthSubHeader
+import com.agrafast.ui.screen.authetication.component.AuthType
 
 @Composable
 fun RegisterScreen(
@@ -47,11 +42,6 @@ fun RegisterScreen(
 ) {
   // State
   val userState = authViewModel.userState.collectAsState()
-  var name by rememberSaveable { mutableStateOf("") }
-  var email by rememberSaveable { mutableStateOf("") }
-  var phone by rememberSaveable { mutableStateOf("") }
-  var password by rememberSaveable { mutableStateOf("") }
-  var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
   // SideEffects
   LaunchedEffect(userState.value) {
@@ -66,188 +56,109 @@ fun RegisterScreen(
     }
   }
 
-  Column() {
-    BannerAuth()
-    HeadlineText(
-      text1 = "Signup to start with",
-      text2 = "Ultimate Farming App"
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-
-    //Textfield Nama
-    OutlinedTextField(
-      value = name, onValueChange = { name = it },
-      modifier = Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(12.dp))
-        .padding(start = 12.dp, end = 12.dp),
-      label = { Text(text = "Name") },
-      keyboardOptions = KeyboardOptions.Default,
-      leadingIcon = {
-        Icon(
-          painter = painterResource(R.drawable.ic_profile),
-          contentDescription = ""
-        )
-      },
-    )
-
-    //Email TextField
-    Spacer(modifier = Modifier.height(8.dp))
-    OutlinedTextField(
-      value = email, onValueChange = { email = it },
-      modifier = Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(12.dp))
-        .padding(start = 12.dp, end = 12.dp),
-      label = { Text(text = "Email") },
-      keyboardOptions = KeyboardOptions.Default,
-      leadingIcon = {
-        Icon(
-          painter = painterResource(R.drawable.ic_profile),
-          contentDescription = ""
-        )
-      },
-    )
-
-
-    //Telp TextField
-    Spacer(modifier = Modifier.height(8.dp))
-    OutlinedTextField(
-      value = phone, onValueChange = { phone = it },
-      modifier = Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(12.dp))
-        .padding(start = 12.dp, end = 12.dp),
-      label = { Text(text = "Telp. Number") },
-      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-      leadingIcon = {
-        Icon(
-          painter = painterResource(R.drawable.ic_phone),
-          contentDescription = ""
-        )
-      },
-    )
-
-    Spacer(modifier = Modifier.height(8.dp))
-
-    OutlinedTextField(
-      value = password,
-      modifier = Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(12.dp))
-        .padding(start = 12.dp, end = 12.dp),
-      onValueChange = { password = it },
-      label = { Text("Enter password") },
-      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-      leadingIcon = {
-        Icon(
-          painter = painterResource(id = R.drawable.ic_password),
-          contentDescription = ""
-        )
-
-      },
-      trailingIcon = {
-        val iconImage = if (passwordVisible) {
-          painterResource(id = R.drawable.ic_visibility_on)
-        } else {
-          painterResource(id = R.drawable.ic_visibility_off)
-        }
-
-        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-          Icon(painter = iconImage, contentDescription = null)
-        }
-      },
-      visualTransformation = if (passwordVisible) {
-        VisualTransformation.None
-      } else {
-        PasswordVisualTransformation()
-      }
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-
-    // Register Button
-    Button(
-      onClick = {
-        authViewModel.signUp(
-          name = name,
-          email = email,
-          phone = phone,
-          password = password
-        )
-      },
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 12.dp, end = 12.dp)
-        .height(48.dp),
-      shape = RoundedCornerShape(12.dp),
-      colors = ButtonDefaults.buttonColors(
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = Color.White
-      )
-    ) {
-      Text("Register")
+  LazyColumn() {
+    item {
+      AuthHeader()
     }
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-
-//    GoogleComponent(
-//      text = "Signup in with Google", loadingText = "Create Account..."
-//    )
-    TextLoginWith(
-      text = "Already have an account ? Login",
-      changeTextColor = true,
-      colorText = "Login",
-      plainText = "Already have an account ? ",
-      onRegisterClick = {
+    item {
+      Spacer(modifier = Modifier.height(24.dp))
+    }
+    item {
+      AuthSubHeader("Hi, Welcome!", "Register new account to use AgraFast.")
+    }
+    item {
+      Spacer(modifier = Modifier.height(16.dp))
+    }
+    item {
+      RegisterForm(
+        isLoading = userState.value is AuthState.Loading,
+        onRegisterClick = { name, email, phone, password ->
+        authViewModel.signUp(name, email, phone, password)
+      })
+    }
+    item {
+      AuthFooter(AuthType.Login, onActionClick = {
         appState.navController.navigate(Screen.Login.route) {
           popUpTo(Screen.Register.route) {
             inclusive = true
           }
         }
-      }
-    )
-
-
+      })
+    }
   }
-//    AgraFastTheme {
-//        // A surface container using the 'background' color from the theme
-//        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-//            Column() {
-//                BannerAuth()
-//                HeadlineText(text1 = "Signup to start with",
-//                    text2 = "Ultimate Farming App")
-//                Spacer(modifier = Modifier.height(16.dp))
-//                TextField(labelValue = "Nama")
-//                Spacer(modifier = Modifier.height(8.dp))
-//                TextField(labelValue = "Email")
-//                Spacer(modifier = Modifier.height(8.dp))
-//                TextField(labelValue = "No.Telp", icon = R.drawable.ic_phone)
-//                Spacer(modifier = Modifier.height(8.dp))
-//                PasswordTextField()
-//                ButtonAuth(text = "Register", false, navController = navController, loginPage = false)
-//                GoogleComponent(
-//                    text= "Signup in with Google", loadingText = "Create Account..."
-//                )
-//                TextLoginWith(
-//                    text= "Already have an account ? Login", changeTextColor = true,
-//                    colorText = "Login", plainText = "Already have an account ? ", onRegisterClick = {navController.navigate(Screen.Login.route)}
-//                )
-//            }
-//        }
-//    }
 }
 
+@Composable
+fun RegisterForm(onRegisterClick: (name: String, email: String, phone: String, password: String) -> Unit, isLoading: Boolean) {
+  var name by rememberSaveable { mutableStateOf("") }
+  var isNameError by rememberSaveable { mutableStateOf(false) }
+  var email by rememberSaveable { mutableStateOf("") }
+  var isEmailError by rememberSaveable { mutableStateOf(false) }
+  var phone by rememberSaveable { mutableStateOf("") }
+  var isPhoneError by rememberSaveable { mutableStateOf(false) }
+  var password by rememberSaveable { mutableStateOf("") }
+  var isPasswordError by rememberSaveable { mutableStateOf(false) }
 
-////@Preview
-////@Composable
-////fun RegisterScreenPreview() {
-////    Surface(
-////        color = Color.White,
-////        modifier = Modifier.fillMaxSize()
-////    ) {
-////        RegisterScreen(appState = AppState(), navController = rememberNavController(), authViewModel = null)
-////    }
-////}
+  fun handleClick(){
+    isNameError = name.trim().isEmpty() || name.trim().length < 6
+    isEmailError = email.trim().isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
+    isPasswordError = password.isEmpty() || password.length < 8
+    isPhoneError =  phone.trim().isEmpty() || !android.util.Patterns.PHONE.matcher(phone.trim()).matches()
+    if(!isNameError && !isEmailError && !isPhoneError && !isPasswordError){
+      onRegisterClick(name.trim(), email.trim(), phone.trim(), password)
+    }
+  }
+
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 16.dp),
+    verticalArrangement = Arrangement.spacedBy(24.dp)
+  ) {
+    InputText(
+      value = name,
+      label = "Nama",
+      isError = isNameError,
+      leadingRes = R.drawable.ic_user,
+      onValueChange = { name = it })
+
+    InputText(
+      value = email,
+      isError = isEmailError,
+      label = "Email",
+      leadingRes = R.drawable.ic_email,
+      onValueChange = { email = it },
+      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+    )
+    InputText(
+      value = phone,
+      isError =  isPhoneError,
+      label = "No. Telp",
+      leadingRes = R.drawable.ic_phone,
+      onValueChange = { phone = it },
+      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+    )
+    InputText(
+      isError = isPasswordError,
+      value = password,
+      label = "Kata sandi",
+      leadingRes = R.drawable.ic_password,
+      onValueChange = { password = it },
+      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
+    PrimaryButton(text = "Register", onClick = {
+      handleClick()
+    })
+  }
+}
+
+@Preview
+@Composable
+fun DefaultPreview() {
+  Surface(
+  ) {
+    RegisterScreen(appState = rememberAppState(), authViewModel = hiltViewModel())
+  }
+}
 
 

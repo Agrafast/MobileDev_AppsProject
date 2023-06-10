@@ -29,11 +29,18 @@ val Nunito = FontFamily(
 )
 
 val Typography = Typography(
+  displayMedium = TextStyle(
+    fontFamily = Poppins,
+    fontWeight = FontWeight.Bold,
+    fontSize = 32.sp,
+//    lineHeight = 52.sp,
+    letterSpacing = 0.sp
+  ),
   displaySmall = TextStyle(
-    fontFamily = Inter,
-    fontWeight = FontWeight.SemiBold,
-    fontSize = 36.sp,
-    lineHeight = 44.sp,
+    fontFamily = Poppins,
+    fontWeight = FontWeight.Bold,
+    fontSize = 28.sp,
+//    lineHeight = 44.sp,
     letterSpacing = 0.sp
   ),
 
