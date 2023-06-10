@@ -48,13 +48,11 @@ fun RegisterScreen(
   var errorAuthMessage: String? by rememberSaveable { mutableStateOf(null) }
 
   // SideEffects
-  LaunchedEffect(Unit ){
+  LaunchedEffect(Unit){
     authViewModel.resetUserState()
   }
   LaunchedEffect(userState.value) {
     if (userState.value is AuthState.Authenticated<User>) {
-      val user = (userState.value as AuthState.Authenticated).data!!
-      appState.setUser(user)
       appState.navController.navigate(Screen.Home.route) {
         popUpTo(Screen.Register.route) {
           inclusive = true

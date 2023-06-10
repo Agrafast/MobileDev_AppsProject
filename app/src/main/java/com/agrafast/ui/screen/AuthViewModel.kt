@@ -17,7 +17,6 @@ class AuthViewModel @Inject constructor(
   private val userRepository: UserRepository
 ) : ViewModel() {
 
-
   var userState: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Default)
     private set
 
@@ -65,18 +64,22 @@ class AuthViewModel @Inject constructor(
   }
 
   fun getAuthErrorMessage(authType: AuthType): String? {
-    if (userState.value is AuthState.Default || userState.value is AuthState.Loading) {
-      return null
+    return if (userState.value is AuthState.Default || userState.value is AuthState.Loading) {
+      null
     } else if (userState.value is AuthState.InvalidUser) { // Login
-      return "Email belum terdaftar!"
+      "Email belum terdaftar!"
     } else if (userState.value is AuthState.InvalidPassword) { // Login
-      return "Kata sandi yang dimasukkan salah!"
+      "Kata sandi yang dimasukkan salah!"
     } else if (userState.value is AuthState.EmailExist) { // Register
-      return "Email telah terdaftar!"
+      "Email telah terdaftar!"
     } else if (userState.value is AuthState.EmailMalformed) { // Register
-      return "Email yang dimasukkan salah!"
+      "Email yang dimasukkan salah!"
     } else {
-      return if (authType == AuthType.Login) "Gagal melakukan registrasi!" else "Percobaan masuk gagal!"
+      if (authType == AuthType.Login) "Gagal melakukan registrasi!" else "Percobaan masuk gagal!"
     }
+  }
+
+  fun getUser(): User {
+    return (userState.value as AuthState.Authenticated<User>).data!!
   }
 }

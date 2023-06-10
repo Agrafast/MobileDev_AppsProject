@@ -1,6 +1,5 @@
 package com.agrafast.ui.screen.splash
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,31 +35,28 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlin.math.log
 
 @Composable
 fun SplashScreen(
   appState: AppState,
-  viewModel: AuthViewModel = hiltViewModel()
+  authViewModel: AuthViewModel,
 ) {
   // State
-  val userState = viewModel.userState.collectAsState()
+  val userState = authViewModel.userState.collectAsState()
   val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.logo_splash))
   val logoAnimationState =
     animateLottieCompositionAsState(composition = composition)
   val lottieFinishedState = remember { mutableStateOf(false) }
-  var routeState = remember { mutableStateOf(Screen.Profil.route) }
+  val routeState = remember { mutableStateOf(Screen.Profil.route) }
 
 
   // SideEffects
   LaunchedEffect(Unit) {
-    viewModel.checkSession()
+    authViewModel.checkSession()
 //    viewModel.signIn()
   }
   LaunchedEffect(userState.value) {
     if (userState.value is AuthState.Authenticated) {
-      val user = (userState.value as AuthState.Authenticated).data!!
-      appState.setUser(user)
       routeState.value = Screen.Home.route
     } else if(userState.value is AuthState.Unauthenticated){
       routeState.value = Screen.Login.route
@@ -121,6 +117,6 @@ fun SplashScreen(
 @Composable
 fun DefaultPreview() {
   AgraFastTheme {
-    SplashScreen(appState = rememberAppState())
+    SplashScreen(appState = rememberAppState(), hiltViewModel())
   }
 }

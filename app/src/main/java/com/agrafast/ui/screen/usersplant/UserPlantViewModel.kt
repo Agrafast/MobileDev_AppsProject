@@ -32,7 +32,7 @@ class PlantListViewModel @Inject constructor(
     }
   }
 
-  fun deleteFromUserPlant(appState: AppState, plant: Plant, index: Int) {
+  fun deleteFromUserPlant( userId: String,  plant: Plant, index: Int, appState: AppState,) {
     // Act like if the plant deleted
     viewModelScope.launch {
       val newPlants =
@@ -51,7 +51,7 @@ class PlantListViewModel @Inject constructor(
 
     val deleteJob = appState.coroutineScope.launch {
       delay(4000) // SnackBar.Short Duration
-      val res = userRepository.deleteFromUserPlant(appState.user.id, plant.id)
+      val res = userRepository.deleteFromUserPlant(userId, plant.id)
       if (res !is UIState.Success) {
         appState.showSnackbar("Gagal menghapus")
         returnBackJob.start()

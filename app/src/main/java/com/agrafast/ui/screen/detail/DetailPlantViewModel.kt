@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agrafast.AppState
 import com.agrafast.data.firebase.model.TutorialStep
+import com.agrafast.data.firebase.model.User
 import com.agrafast.data.repository.PlantRepository
 import com.agrafast.data.repository.UserRepository
 import com.agrafast.domain.UIState
@@ -35,10 +36,10 @@ class DetailPlantViewModel @Inject constructor(
     }
   }
 
-  fun insertToUserPlant(appState: AppState, plantId: String) {
+  fun insertToUserPlant(user: User, appState: AppState, plantId: String) {
     viewModelScope.launch {
-      val res = userRepository.addToUserPlant(appState.user.id, plantId)
-      if(res is UIState.Success){
+      val res = userRepository.addToUserPlant(user.id, plantId)
+      if (res is UIState.Success) {
         isInUserPlantState.emit(true)
         appState.showSnackbar("Berhasil menambahkan ke tanamanku")
       } else {
@@ -48,10 +49,10 @@ class DetailPlantViewModel @Inject constructor(
     }
   }
 
-  fun deleteFromUserPlant(appState: AppState, plantId: String) {
+  fun deleteFromUserPlant(userId: String, plantId: String, appState: AppState) {
     viewModelScope.launch {
-      val res = userRepository.deleteFromUserPlant(appState.user.id, plantId)
-      if(res is UIState.Success){
+      val res = userRepository.deleteFromUserPlant(userId, plantId)
+      if (res is UIState.Success) {
         isInUserPlantState.emit(false)
         appState.showSnackbar("Berhasil menghapus dari tanamanku")
       } else {
@@ -63,7 +64,7 @@ class DetailPlantViewModel @Inject constructor(
   fun checkIsInUserPlant(userId: String, plantId: String) {
     viewModelScope.launch {
       val res = userRepository.checkIfPlantInUserPlant(userId, plantId)
-      if(res is UIState.Success){
+      if (res is UIState.Success) {
         isInUserPlantState.emit(res.data!!)
       }
     }

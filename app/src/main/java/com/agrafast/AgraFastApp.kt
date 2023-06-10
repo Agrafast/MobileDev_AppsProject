@@ -1,6 +1,5 @@
 package com.agrafast
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -37,7 +36,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.agrafast.data.firebase.model.User
 import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.AuthViewModel
@@ -114,7 +112,7 @@ fun AgraFastApp(
       startDestination = Screen.Splash.route, modifier = Modifier.padding(innerPadding)
     ) {
       composable(route = Screen.Splash.route) {
-        SplashScreen(appState = appState)
+        SplashScreen(appState = appState, authViewModel = authViewModel)
       }
       composable(Screen.Login.route) {
         LoginScreen(appState = appState, authViewModel = authViewModel)
@@ -129,13 +127,17 @@ fun AgraFastApp(
         PlantListScreen(appState = appState, sharedViewModel = viewModel)
       }
       composable(route = Screen.UserPlantList.route) {
-        UserPlantListScreen(appState = appState, sharedViewModel = viewModel)
+        UserPlantListScreen(
+          appState = appState,
+          sharedViewModel = viewModel,
+          authViewModel = authViewModel
+        )
       }
       composable(route = Screen.Profil.route) {
-        ProfileScreen(appState = appState)
+        ProfileScreen(appState = appState, authViewModel = authViewModel)
       }
       composable(route = Screen.PlantDetail.route) {
-        PlantDetailScreen(appState = appState, sharedViewModel = viewModel)
+        PlantDetailScreen(appState = appState, sharedViewModel = viewModel, authViewModel)
       }
       composable(route = Screen.PlantDiseaseDetection.route) {
         PlantDiseaseDetectionScreen(
@@ -182,15 +184,6 @@ class AppState(
   val navController: NavHostController,
   val coroutineScope: CoroutineScope,
 ) {
-  lateinit var user: User
-    private set
-
-  fun setUser(user: User) {
-    Log.d("TAG", "setUser: $user")
-    this.user = user
-  }
-
-
   fun showSnackbar(
     message: String, actionLabel: String? = null,
     duration: SnackbarDuration = SnackbarDuration.Short,
