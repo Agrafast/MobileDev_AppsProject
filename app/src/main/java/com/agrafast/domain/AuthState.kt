@@ -18,6 +18,7 @@ sealed class AuthState<out S> {
   // When the login exist, but there is no document for the user in firestore
   object UserDataNotExist : AuthState<Nothing>() // SignIn
   object Unauthenticated : AuthState<Nothing>()
+  object Default : AuthState<Nothing>()
 
   data class Error(val error: String) : AuthState<Nothing>()
   data class Authenticated<out T>(val data: T? = null) : AuthState<T>()

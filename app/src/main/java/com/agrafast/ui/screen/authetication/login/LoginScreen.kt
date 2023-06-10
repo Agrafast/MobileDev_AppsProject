@@ -1,6 +1,7 @@
 package com.agrafast.ui.screen.authetication.login
 
 import android.content.Context
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,12 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,17 +52,21 @@ fun LoginScreen(
 
 
   val userState = authViewModel.userState.collectAsState()
+  var errorAuthMessage: String? by rememberSaveable { mutableStateOf(null) }
 
+  // SideEffect
+  LaunchedEffect(Unit ){
+    authViewModel.resetUserState()
+  }
   LaunchedEffect(userState.value) {
     if (userState.value is AuthState.Authenticated<User>) {
-      val user = (userState.value as AuthState.Authenticated).data!!
-      appState.setUser(user)
       appState.navController.navigate(Screen.Home.route) {
         popUpTo(Screen.Login.route) {
           inclusive = true
         }
       }
     }
+    errorAuthMessage = authViewModel.getAuthErrorMessage(AuthType.Login)
   }
 
   LazyColumn {
@@ -79,13 +87,14 @@ fun LoginScreen(
       val noInternet = stringResource(id = R.string.no_internet)
       LoginForm(
         isLoading = userState.value is AuthState.Loading,
+        errorMessage = errorAuthMessage,
         onLoginClick = { email, password ->
-        if (Helper.isOnline(context)) {
-          authViewModel.signIn(email, password)
-        } else {
-          appState.showSnackbar(noInternet)
-        }
-      })
+          if (Helper.isOnline(context)) {
+            authViewModel.signIn(email, password)
+          } else {
+            appState.showSnackbar(noInternet)
+          }
+        })
     }
 
     item {
@@ -102,14 +111,19 @@ fun LoginScreen(
 }
 
 @Composable
-fun LoginForm(onLoginClick: (email: String, password: String) -> Unit, isLoading: Boolean) {
+fun LoginForm(
+  onLoginClick: (email: String, password: String) -> Unit,
+  isLoading: Boolean,
+  errorMessage: String? = null,
+) {
   var email by remember { mutableStateOf("") }
   var isEmailError by remember { mutableStateOf(false) }
   var password by remember { mutableStateOf("") }
   var isPasswordError by remember { mutableStateOf(false) }
 
   fun handleClick() {
-    isEmailError = email.trim().isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
+    isEmailError =
+      email.trim().isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
     isPasswordError = password.isEmpty() || password.length < 8
     if (!isEmailError && !isPasswordError) {
       onLoginClick(email.trim(), password)
@@ -119,9 +133,17 @@ fun LoginForm(onLoginClick: (email: String, password: String) -> Unit, isLoading
   Column(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(horizontal = 16.dp),
+      .padding(horizontal = 16.dp)
+      .animateContentSize(),
     verticalArrangement = Arrangement.spacedBy(24.dp)
   ) {
+    if (errorMessage?.isNotEmpty() == true) {
+      Text(
+        text = errorMessage,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.error
+      )
+    }
     InputText(
       value = email,
       isError = isEmailError,

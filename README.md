@@ -13,20 +13,21 @@
 - Logo #Done
 - Splash Screen #Done
 
-### TODO
-- Integrate HomeScreen
+- Integrate HomeScreen #Done
   - Ambil data list tanaman dari firebase #Done
-  - Ambil data user  dari firebase #WIP by Hafiz
+  - Ambil data user  dari firebase #Done
+
+- Autentikasi Basic (Login, Register) #Done
+### TODO
 
 - Offline first (HomeScreen dan UserPlantScreen)
   > Fungsionalitas untuk simpan data ke local
   > Ketika data local tidak ada, baru check ke internet
   > Ketika di background tetap mengambil dari internet dan membandingkan jika ada perubahan
 
-- Autentikasi
 
 ### Optional 
 - Resize Image before go to server
 - Elevation based recomedation
 - OnBoarding
-- 
+- Image Placeholder

@@ -76,14 +76,7 @@ fun HomeScreen(
     contentPadding = PaddingValues(bottom = 16.dp)
   ) {
     item {
-      UserInfo(user = appState.user, modifier = Modifier.clickable {
-        authViewModel.signOut()
-        appState.navController.navigate(Screen.Login.route) {
-          popUpTo(Screen.Home.route) {
-            inclusive = true
-          }
-        }
-      })
+      UserInfo(user = authViewModel.getUser())
     }
     item { SectionTitle(text = stringResource(id = R.string.disease_detector_title)) }
     item {
@@ -234,8 +227,7 @@ fun DiseaseDetectionPlantCard(plant: Plant, height: Dp, onClickItem: (Plant) -> 
         modifier = Modifier
           .padding(horizontal = 8.dp, vertical = 4.dp)
           .align(
-            Alignment
-              .BottomStart
+            Alignment.BottomStart
           ),
         text = plant.title,
         style = MaterialTheme.typography.titleMedium,

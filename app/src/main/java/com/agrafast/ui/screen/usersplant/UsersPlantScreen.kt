@@ -8,7 +8,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.agrafast.AppState
 import com.agrafast.R
 import com.agrafast.data.firebase.model.Plant
@@ -18,6 +17,7 @@ import com.agrafast.ui.component.PlantList
 import com.agrafast.ui.component.SimpleTopBar
 import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.navigation.Screen
+import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
@@ -25,13 +25,15 @@ import com.agrafast.ui.theme.AgraFastTheme
 fun UserPlantListScreen(
   appState: AppState,
   sharedViewModel: GlobalViewModel,
+  authViewModel: AuthViewModel,
   viewModel: PlantListViewModel = hiltViewModel()
 ) {
 
   val userPlantsState = viewModel.userPlantsState.collectAsState()
+  val user = authViewModel.getUser()
 
   LaunchedEffect(Unit) {
-    viewModel.getUserPlants(appState.user.id)
+    viewModel.getUserPlants(userId = user.id)
   }
   Surface {
     Column(
@@ -46,7 +48,12 @@ fun UserPlantListScreen(
             appState.navController.navigate(route = Screen.PlantDetail.route)
           },
           onDismiss = { plant, index ->
-            viewModel.deleteFromUserPlant(appState = appState, plant = plant, index)
+            viewModel.deleteFromUserPlant(
+              userId = user.id,
+              plant = plant,
+              index,
+              appState = appState,
+            )
           })
       } else {
         StatusComp(state = userPlantsState.value)
@@ -59,7 +66,6 @@ fun UserPlantListScreen(
 @Composable
 fun DefaultPreview() {
   AgraFastTheme {
-    val viewModel: GlobalViewModel = viewModel()
-    UserPlantListScreen(rememberAppState(), viewModel)
+    UserPlantListScreen(rememberAppState(), hiltViewModel(), hiltViewModel())
   }
 }

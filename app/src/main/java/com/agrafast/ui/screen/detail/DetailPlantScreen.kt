@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -39,6 +38,7 @@ import com.agrafast.ui.component.PlantTitle
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.navigation.Screen
+import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 import com.agrafast.ui.theme.Gray200
@@ -49,6 +49,7 @@ import com.agrafast.util.formatWithOrdered
 fun PlantDetailScreen(
   appState: AppState,
   sharedViewModel: GlobalViewModel,
+  authViewModel: AuthViewModel
 ) {
   val viewModel = hiltViewModel<DetailPlantViewModel>()
   val plant: Plant = sharedViewModel.tutorialPlant!!
@@ -56,10 +57,12 @@ fun PlantDetailScreen(
 //  State
   val tutorialStepsState = viewModel.tutorialsState.collectAsState()
   val isInUserPlantState = viewModel.isInUserPlantState.collectAsState()
+
+  val user = authViewModel.getUser()
   // SideEffects
   LaunchedEffect(Unit) {
     viewModel.getPlantTutorial(plant.id)
-    viewModel.checkIsInUserPlant(appState.user.id, plant.id)
+    viewModel.checkIsInUserPlant(user.id, plant.id)
   }
 
 
@@ -86,9 +89,9 @@ fun PlantDetailScreen(
           },
           onToMyPlantClick = {
             if (isInUserPlantState.value) {
-              viewModel.deleteFromUserPlant(appState, plantId = plant.id)
+              viewModel.deleteFromUserPlant(userId = user.id, plantId = plant.id, appState)
             } else {
-              viewModel.insertToUserPlant(appState, plantId = plant.id)
+              viewModel.insertToUserPlant(user = user, appState, plantId = plant.id)
             }
           })
       }
@@ -165,6 +168,6 @@ fun PlantingTutorial(tutorialStepsState: State<UIState<List<TutorialStep>>>) {
 fun DefaultPreview() {
   AgraFastTheme {
     val viewModel: GlobalViewModel = viewModel()
-    PlantDetailScreen(rememberAppState(), viewModel)
+    PlantDetailScreen(rememberAppState(), viewModel, hiltViewModel())
   }
 }
