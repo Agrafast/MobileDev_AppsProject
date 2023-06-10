@@ -33,14 +33,14 @@ fun AuthFooter(authType: AuthType, onActionClick: () -> Unit) {
       .fillMaxWidth().padding(horizontal = 16.dp),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    Text(
-      modifier = Modifier.fillMaxWidth(),
-      text = "Forget Password ?",
-      style = MaterialTheme.typography.labelLarge,
-      textAlign = TextAlign.Right,
-      color = MaterialTheme.colorScheme.primary,
-      fontSize = 14.sp
-    )
+//    Text(
+//      modifier = Modifier.fillMaxWidth(),
+//      text = "Forget Password ?",
+//      style = MaterialTheme.typography.labelLarge,
+//      textAlign = TextAlign.Right,
+//      color = MaterialTheme.colorScheme.primary,
+//      fontSize = 14.sp
+//    )
     Spacer(modifier = Modifier.height(16.dp))
     Row(
       horizontalArrangement = Arrangement.spacedBy(4.dp)

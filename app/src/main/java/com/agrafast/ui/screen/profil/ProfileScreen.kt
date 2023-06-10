@@ -131,7 +131,7 @@ fun ProfilDetail(user: User){
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = user.telpNumber,
+            text = "user.telpNumber",
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
         )
@@ -147,7 +147,7 @@ fun ProfilDetail(user: User){
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = user.alamat,
+            text = "user.alamat",
             style = MaterialTheme.typography.bodyMedium,
             maxLines = 1,
         )

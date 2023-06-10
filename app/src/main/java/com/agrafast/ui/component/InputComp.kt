@@ -26,6 +26,7 @@ import com.agrafast.R
 @Composable
 fun InputText(
   value: String,
+  isError: Boolean,
   label: String,
   @DrawableRes leadingRes: Int,
   onValueChange: (String) -> Unit,
@@ -46,6 +47,7 @@ fun InputText(
     singleLine = true,
     label = { Text(text = label) },
     keyboardOptions = keyboardOptions,
+    isError = isError,
     leadingIcon = {
       Icon(
         painter = painterResource(leadingRes),
@@ -53,13 +55,15 @@ fun InputText(
       )
     },
     trailingIcon = {
-      if(isPasswordInput){
-      val resId = if (visible) R.drawable.ic_visibility_on else R.drawable.ic_visibility_off
+      if (isPasswordInput) {
+        val resId = if (visible) R.drawable.ic_visibility_on else R.drawable.ic_visibility_off
         Icon(
-          modifier = Modifier.size(24.dp).clickable(
-            indication = null,
-            interactionSource = MutableInteractionSource()
-          ) { visible = !visible },
+          modifier = Modifier
+            .size(24.dp)
+            .clickable(
+              indication = null,
+              interactionSource = MutableInteractionSource()
+            ) { visible = !visible },
           painter = painterResource(id = resId),
           contentDescription = null
         )
