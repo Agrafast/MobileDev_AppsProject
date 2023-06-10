@@ -1,6 +1,9 @@
 package com.agrafast.data.firebase.model
 
+import androidx.annotation.Keep
+
+@Keep
 interface FirebaseObject {
-  val id: String
+  var id: String
   fun setId(id: String): FirebaseObject
 }

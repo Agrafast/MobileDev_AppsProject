@@ -100,7 +100,7 @@ fun ProfilHeader(modifier: Modifier = Modifier, user: User) {
         )
       } else {
         AsyncImage(
-          model = painterResource(id = R.drawable.maize_banner),
+          model = painterResource(id = R.drawable.auth_header),
           contentDescription = "Profile",
           contentScale = ContentScale.Crop,
           modifier = Modifier
