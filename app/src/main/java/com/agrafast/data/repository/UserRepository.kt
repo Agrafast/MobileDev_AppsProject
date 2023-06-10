@@ -167,6 +167,7 @@ class UserRepository {
       val plantIds = usersRef.document(userId).collection("plants").get().await().documents.map {
         it.id
       }
+      if (plantIds.isEmpty()) return UIState.Empty
       val plants = plantsRef.whereIn(FieldPath.documentId(), plantIds).get().await().mapNotNull {
         it.toObject(Plant::class.java).setId(it.id)
       }
