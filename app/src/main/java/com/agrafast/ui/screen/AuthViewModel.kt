@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.agrafast.data.firebase.model.User
 import com.agrafast.data.repository.UserRepository
 import com.agrafast.domain.AuthState
+import com.agrafast.ui.screen.authetication.component.AuthType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
@@ -17,7 +18,7 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-  var userState: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Unauthenticated)
+  var userState: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Default)
     private set
 
   fun signUp(
@@ -25,11 +26,12 @@ class AuthViewModel @Inject constructor(
     email: String,
     phone: String,
     password: String,
-  ){
+  ) {
     viewModelScope.launch {
       userState.emitAll(userRepository.signUpAndCreateData(name, email, phone, password))
     }
   }
+
   fun signIn(
     email: String,
     password: String
@@ -55,6 +57,26 @@ class AuthViewModel @Inject constructor(
       } else {
         userState.emit(AuthState.Unauthenticated)
       }
+    }
+  }
+
+  fun resetUserState() {
+    userState.value = AuthState.Default
+  }
+
+  fun getAuthErrorMessage(authType: AuthType): String? {
+    if (userState.value is AuthState.Default || userState.value is AuthState.Loading) {
+      return null
+    } else if (userState.value is AuthState.InvalidUser) { // Login
+      return "Email belum terdaftar!"
+    } else if (userState.value is AuthState.InvalidPassword) { // Login
+      return "Kata sandi yang dimasukkan salah!"
+    } else if (userState.value is AuthState.EmailExist) { // Register
+      return "Email telah terdaftar!"
+    } else if (userState.value is AuthState.EmailMalformed) { // Register
+      return "Email yang dimasukkan salah!"
+    } else {
+      return if (authType == AuthType.Login) "Gagal melakukan registrasi!" else "Percobaan masuk gagal!"
     }
   }
 }

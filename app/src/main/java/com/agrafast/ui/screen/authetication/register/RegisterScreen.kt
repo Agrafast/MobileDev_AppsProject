@@ -1,5 +1,6 @@
 package com.agrafast.ui.screen.authetication.register
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,8 +45,12 @@ fun RegisterScreen(
 ) {
   // State
   val userState = authViewModel.userState.collectAsState()
+  var errorAuthMessage: String? by rememberSaveable { mutableStateOf(null) }
 
   // SideEffects
+  LaunchedEffect(Unit ){
+    authViewModel.resetUserState()
+  }
   LaunchedEffect(userState.value) {
     if (userState.value is AuthState.Authenticated<User>) {
       val user = (userState.value as AuthState.Authenticated).data!!
@@ -54,6 +61,7 @@ fun RegisterScreen(
         }
       }
     }
+    errorAuthMessage = authViewModel.getAuthErrorMessage(AuthType.Register)
   }
 
   LazyColumn() {
@@ -72,9 +80,10 @@ fun RegisterScreen(
     item {
       RegisterForm(
         isLoading = userState.value is AuthState.Loading,
+        errorMessage = errorAuthMessage,
         onRegisterClick = { name, email, phone, password ->
-        authViewModel.signUp(name, email, phone, password)
-      })
+          authViewModel.signUp(name, email, phone, password)
+        })
     }
     item {
       AuthFooter(AuthType.Login, onActionClick = {
@@ -89,7 +98,11 @@ fun RegisterScreen(
 }
 
 @Composable
-fun RegisterForm(onRegisterClick: (name: String, email: String, phone: String, password: String) -> Unit, isLoading: Boolean) {
+fun RegisterForm(
+  onRegisterClick: (name: String, email: String, phone: String, password: String) -> Unit,
+  isLoading: Boolean,
+  errorMessage: String? = null
+) {
   var name by rememberSaveable { mutableStateOf("") }
   var isNameError by rememberSaveable { mutableStateOf(false) }
   var email by rememberSaveable { mutableStateOf("") }
@@ -99,12 +112,14 @@ fun RegisterForm(onRegisterClick: (name: String, email: String, phone: String, p
   var password by rememberSaveable { mutableStateOf("") }
   var isPasswordError by rememberSaveable { mutableStateOf(false) }
 
-  fun handleClick(){
+  fun handleClick() {
     isNameError = name.trim().isEmpty() || name.trim().length < 6
-    isEmailError = email.trim().isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
+    isEmailError =
+      email.trim().isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
     isPasswordError = password.isEmpty() || password.length < 8
-    isPhoneError =  phone.trim().isEmpty() || !android.util.Patterns.PHONE.matcher(phone.trim()).matches()
-    if(!isNameError && !isEmailError && !isPhoneError && !isPasswordError){
+    isPhoneError =
+      phone.trim().isEmpty() || !android.util.Patterns.PHONE.matcher(phone.trim()).matches()
+    if (!isNameError && !isEmailError && !isPhoneError && !isPasswordError) {
       onRegisterClick(name.trim(), email.trim(), phone.trim(), password)
     }
   }
@@ -112,9 +127,17 @@ fun RegisterForm(onRegisterClick: (name: String, email: String, phone: String, p
   Column(
     modifier = Modifier
       .fillMaxWidth()
-      .padding(horizontal = 16.dp),
+      .padding(horizontal = 16.dp)
+      .animateContentSize(),
     verticalArrangement = Arrangement.spacedBy(24.dp)
   ) {
+    if (errorMessage?.isNotEmpty() == true) {
+      Text(
+        text = errorMessage,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.error
+      )
+    }
     InputText(
       value = name,
       label = "Nama",
@@ -132,7 +155,7 @@ fun RegisterForm(onRegisterClick: (name: String, email: String, phone: String, p
     )
     InputText(
       value = phone,
-      isError =  isPhoneError,
+      isError = isPhoneError,
       label = "No. Telp",
       leadingRes = R.drawable.ic_phone,
       onValueChange = { phone = it },
@@ -146,7 +169,7 @@ fun RegisterForm(onRegisterClick: (name: String, email: String, phone: String, p
       onValueChange = { password = it },
       keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
     )
-    PrimaryButton(text = "Register", onClick = {
+    PrimaryButton(isLoading = isLoading, text = "Register", onClick = {
       handleClick()
     })
   }
