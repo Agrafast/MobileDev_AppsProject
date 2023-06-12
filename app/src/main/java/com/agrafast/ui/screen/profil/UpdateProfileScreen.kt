@@ -40,6 +40,7 @@ import kotlinx.coroutines.launch
 
 enum class UpdateType {
   PHOTO,
+  PASSWORD,
   EMAIL,
   PROFILE
 }
@@ -64,6 +65,11 @@ fun UpdateProfileScreen(
     UpdateType.EMAIL -> {
       typeString = "Email"
       pageTitle = stringResource(id = R.string.update_email)
+    }
+
+    UpdateType.PASSWORD -> {
+      typeString = "Kata sandi"
+      pageTitle = stringResource(id = R.string.update_password)
     }
 
     UpdateType.PHOTO -> {
@@ -109,6 +115,15 @@ fun UpdateProfileScreen(
               onUpdateClick = { newEmail, password ->
                 keyBoardController?.hide()
                 viewModel.updateEmail(newEmail, password)
+              })
+          }
+
+          UpdateType.PASSWORD -> {
+            UpdatePasswordForm(
+              isLoading = updateState.value is UIState.Loading,
+              onUpdateClick = { password ->
+                keyBoardController?.hide()
+                viewModel.updatePassword(password)
               })
           }
 
@@ -176,6 +191,71 @@ fun UpdateEmailForm(
       label = "Kata sandi",
       leadingRes = R.drawable.ic_password,
       onValueChange = { password = it },
+      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
+    PrimaryButton(isLoading = isLoading, text = stringResource(R.string.update), onClick = {
+      handleClick()
+    })
+  }
+}
+
+@Composable
+fun UpdatePasswordForm(
+  onUpdateClick: (password: String) -> Unit,
+  isLoading: Boolean,
+  errorMessage: String? = null
+) {
+  var oldPassword by remember { mutableStateOf("") }
+  var isOldPasswordError by remember { mutableStateOf(false) }
+  var newPassword by remember { mutableStateOf("") }
+  var isNewPasswordError by remember { mutableStateOf(false) }
+  var confirmationPassword by remember { mutableStateOf("") }
+  var isConfirmationPasswordError by remember { mutableStateOf(false) }
+
+  fun handleClick() {
+    isOldPasswordError = oldPassword.isEmpty() || oldPassword.length < 8
+    isNewPasswordError = newPassword.isEmpty() || newPassword.length < 8
+    isConfirmationPasswordError = newPassword != confirmationPassword
+    if (!isOldPasswordError && !isNewPasswordError && !isConfirmationPasswordError) {
+      onUpdateClick(newPassword)
+    }
+  }
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 16.dp)
+      .animateContentSize(),
+    verticalArrangement = Arrangement.spacedBy(24.dp)
+  ) {
+    if (errorMessage?.isNotEmpty() == true) {
+      Text(
+        text = errorMessage,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.error
+      )
+    }
+    InputText(
+      value = oldPassword,
+      isError = isOldPasswordError,
+      label = "Kata sandi lama",
+      leadingRes = R.drawable.ic_password,
+      onValueChange = { oldPassword = it },
+      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
+    InputText(
+      value = newPassword,
+      isError = isNewPasswordError,
+      label = "Kata sandi baru",
+      leadingRes = R.drawable.ic_password,
+      onValueChange = { newPassword = it },
+      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
+    InputText(
+      value = confirmationPassword,
+      isError = isConfirmationPasswordError,
+      label = "Konfirmasi kata sandi",
+      leadingRes = R.drawable.ic_password,
+      onValueChange = { confirmationPassword = it },
       keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
     )
     PrimaryButton(isLoading = isLoading, text = stringResource(R.string.update), onClick = {

@@ -22,4 +22,5 @@
     <string name="name">Nama</string>
     <string name="email">Email</string>
     <string name="phone">No. Telp</string>
+    <string name="update_password">Perbarui kata sandi</string>
 </resources>

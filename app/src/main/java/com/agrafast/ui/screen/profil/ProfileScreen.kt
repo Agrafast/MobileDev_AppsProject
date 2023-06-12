@@ -148,6 +148,13 @@ fun ProfilDetail(user: User, appState: AppState, authViewModel: AuthViewModel) {
     )
     ProfilDetailItem(
       painter = painterResource(id = R.drawable.ic_setting),
+      title = "Perbarui kata sandi",
+      onClick = {
+        appState.navController.navigate(Screen.UpdateProfile.to("password"))
+      }
+    )
+    ProfilDetailItem(
+      painter = painterResource(id = R.drawable.ic_setting),
       title = "Perbarui profil",
       onClick = {
         appState.navController.navigate(Screen.UpdateProfile.to("profil"))

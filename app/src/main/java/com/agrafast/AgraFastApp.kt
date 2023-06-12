@@ -163,6 +163,7 @@ fun AgraFastApp(
       ) {
         val type = when (it.arguments?.getString("type")) {
           "email" -> UpdateType.EMAIL
+          "password" -> UpdateType.PASSWORD
           "photo" -> UpdateType.PHOTO
           else -> UpdateType.PROFILE
         }

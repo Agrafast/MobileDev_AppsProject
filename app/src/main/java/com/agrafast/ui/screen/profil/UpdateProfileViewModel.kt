@@ -20,7 +20,13 @@ class UpdateProfileViewModel @Inject constructor(
   fun updateEmail(email: String, password: String) {
     viewModelScope.launch {
       updateState.emit(UIState.Loading)
-      updateState.emitAll(userRepository.updateEmail(viewModelScope, email, password))
+      updateState.emitAll(userRepository.updateEmail( email, password))
+    }
+  }
+  fun updatePassword( password: String) {
+    viewModelScope.launch {
+      updateState.emit(UIState.Loading)
+      updateState.emitAll(userRepository.updatePassword(password))
     }
   }
 
