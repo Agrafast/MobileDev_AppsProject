@@ -6,6 +6,7 @@ import com.agrafast.data.firebase.model.User
 import com.agrafast.domain.AuthState
 import com.agrafast.domain.UIState
 import com.agrafast.util.addUserSnapshotListenerFlow
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -126,13 +127,33 @@ class UserRepository {
   }
 
   fun resetPassword(email: String): MutableStateFlow<AuthState<Nothing>> {
-
     val result: MutableStateFlow<AuthState<Nothing>> = MutableStateFlow(AuthState.Loading)
     auth.sendPasswordResetEmail(email).addOnCompleteListener {
       if (it.isSuccessful) {
         result.tryEmit(AuthState.Success)
       } else {
         result.tryEmit(AuthState.Error("Failed"))
+      }
+    }
+    return result
+  }
+
+  fun reauthenticateUser(password: String) {
+    val credential = EmailAuthProvider
+      .getCredential(auth.currentUser!!.email!!, password)
+    auth.currentUser!!.reauthenticate(credential).addOnCompleteListener { }
+
+  }
+
+  fun updateEmail(email: String, password: String): MutableStateFlow<UIState<Nothing>> {
+    val result: MutableStateFlow<UIState<Nothing>> = MutableStateFlow(UIState.Loading)
+    reauthenticateUser(password)
+    auth.currentUser!!.updateEmail(email).addOnCompleteListener {
+      Log.d("TAG", "updateEmail: ${it}")
+      if (it.isSuccessful) {
+        result.tryEmit(UIState.Success(null))
+      } else {
+        result.tryEmit(UIState.Error("Failed"))
       }
     }
     return result

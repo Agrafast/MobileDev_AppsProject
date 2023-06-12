@@ -11,6 +11,10 @@ sealed class Screen(val route: String) {
   object PlantDiseaseDetection : Screen("detect/{plant}")
   object UserPlantList : Screen("userplant")
   object Profil : Screen("profil")
+  object UpdateProfile : Screen("profil/update/{type}") {
+    fun to(updateType: String) = "profil/update/${updateType}"
+  }
+
 
   //Authentication
   object Login : Screen("auth/login")

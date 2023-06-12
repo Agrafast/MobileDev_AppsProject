@@ -3,6 +3,8 @@ package com.agrafast.ui.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
@@ -49,7 +51,9 @@ fun SimpleActionBar(
         tint = if (isBackgroundTransparent) Color.White else Color.Unspecified
       )
     }
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier
+      .fillMaxSize(),
+    contentAlignment = Alignment.CenterStart) {
       Text(
         text = title,
         style = MaterialTheme.typography.titleLarge,

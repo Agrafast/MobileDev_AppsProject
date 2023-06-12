@@ -82,4 +82,11 @@ class AuthViewModel @Inject constructor(
   fun getUser(): User {
     return (userState.value as AuthState.Authenticated<User>).data!!
   }
+
+  fun updateCurrentAuthUser() {
+    viewModelScope.launch {
+      userState.emitAll(userRepository.getUserData())
+    }
+  }
+
 }

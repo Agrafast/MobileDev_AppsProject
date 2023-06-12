@@ -140,6 +140,20 @@ fun ProfilDetail(user: User, appState: AppState, authViewModel: AuthViewModel) {
       subtitle = user.phone
     )
     ProfilDetailItem(
+      painter = painterResource(id = R.drawable.ic_setting),
+      title = "Perbarui email",
+      onClick = {
+        appState.navController.navigate(Screen.UpdateProfile.to("email"))
+      }
+    )
+    ProfilDetailItem(
+      painter = painterResource(id = R.drawable.ic_setting),
+      title = "Perbarui profil",
+      onClick = {
+        appState.navController.navigate(Screen.UpdateProfile.to("profil"))
+      }
+    )
+    ProfilDetailItem(
       painter = painterResource(id = R.drawable.ic_logout),
       title = "Keluar",
       onClick = {
