@@ -80,6 +80,7 @@ fun UpdateProfileScreen(
   // Side Effects
   LaunchedEffect(updateState.value) {
     if (updateState.value is UIState.Success<Nothing>) {
+      authViewModel.updateCurrentAuthUser()
       appState.showSnackbar("$typeString berhasil diperbarui")
       appState.coroutineScope.launch {
         delay(500)

@@ -15,8 +15,10 @@ import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class UserRepository {
@@ -145,17 +147,17 @@ class UserRepository {
 
   }
 
-  fun updateEmail(email: String, password: String): MutableStateFlow<UIState<Nothing>> {
+  suspend fun updateEmail(scope: CoroutineScope, email: String, password: String): MutableStateFlow<UIState<Nothing>> {
     val result: MutableStateFlow<UIState<Nothing>> = MutableStateFlow(UIState.Loading)
-    reauthenticateUser(password)
-    auth.currentUser!!.updateEmail(email).addOnCompleteListener {
-      Log.d("TAG", "updateEmail: ${it}")
-      if (it.isSuccessful) {
-        result.tryEmit(UIState.Success(null))
-      } else {
-        result.tryEmit(UIState.Error("Failed"))
+      reauthenticateUser(password)
+      auth.currentUser!!.updateEmail(email).addOnCompleteListener {
+        Log.d("TAG", "updateEmail: ${it}")
+        if (it.isSuccessful) {
+          result.tryEmit(UIState.Success(null))
+        } else {
+          result.tryEmit(UIState.Error("Failed"))
+        }
       }
-    }
     return result
   }
 
