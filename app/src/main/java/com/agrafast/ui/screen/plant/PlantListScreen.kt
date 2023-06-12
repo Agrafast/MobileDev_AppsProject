@@ -132,7 +132,7 @@ fun SearchBox(
       expanded = expanded, onExpandedChange = {
         expanded = !expanded
       }) {
-      TextField(
+      OutlinedTextField(
         value = getElevationText(elevationLevel),
         onValueChange = {},
         readOnly = true,
