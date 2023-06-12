@@ -24,21 +24,6 @@ class PlantRepository @Inject constructor(
   private val db = Firebase.firestore
   private val plantRef = db.collection("plants")
 
-  // TODO
-//  suspend fun getPlantId(name: String): String?{
-//    var id: String? = null
-//    runBlocking {
-//      try {
-//        val res = plantRef.whereEqualTo("name", name).get().await().documents.first()
-//        id = res.id
-//      } catch (_: Exception){
-//
-//      }
-//    }
-//    return id
-//  }
-
-
   fun getTutorialPlants():Flow<UIState<List<Plant>>>  {
     return plantRef.addSnapshotListenerFlow(Plant::class.java)
   }

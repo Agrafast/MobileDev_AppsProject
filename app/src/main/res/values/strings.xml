@@ -13,4 +13,14 @@
     <string name="welcome_text">Welcome to Agrafast App</string>
     <string name="no_internet">\"Tidak ada akses internet\"</string>
     <string name="login">Masuk</string>
+    <string name="reset_password">Atur ulang kata sandi\n</string>
+    <string name="send">Kirim</string>
+    <string name="update_profile">Perbarui profil</string>
+    <string name="update_photo">Perbarui photo</string>
+    <string name="update_email">Perbarui email</string>
+    <string name="update">Perbarui</string>
+    <string name="name">Nama</string>
+    <string name="email">Email</string>
+    <string name="phone">No. Telp</string>
+    <string name="update_password">Perbarui kata sandi</string>
 </resources>

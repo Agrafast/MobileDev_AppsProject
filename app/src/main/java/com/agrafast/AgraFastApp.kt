@@ -32,14 +32,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.agrafast.domain.model.ElevationLevel
 import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
+import com.agrafast.ui.screen.authetication.ResetPasswordScreen
 import com.agrafast.ui.screen.authetication.login.LoginScreen
 import com.agrafast.ui.screen.authetication.register.RegisterScreen
 import com.agrafast.ui.screen.detail.PlantDetailScreen
@@ -47,6 +51,8 @@ import com.agrafast.ui.screen.detection.PlantDiseaseDetectionScreen
 import com.agrafast.ui.screen.home.HomeScreen
 import com.agrafast.ui.screen.plant.PlantListScreen
 import com.agrafast.ui.screen.profil.ProfileScreen
+import com.agrafast.ui.screen.profil.UpdateProfileScreen
+import com.agrafast.ui.screen.profil.UpdateType
 import com.agrafast.ui.screen.splash.SplashScreen
 import com.agrafast.ui.screen.usersplant.UserPlantListScreen
 import com.agrafast.ui.theme.AgraFastTheme
@@ -120,13 +126,28 @@ fun AgraFastApp(
       composable(Screen.Register.route) {
         RegisterScreen(appState = appState, authViewModel = authViewModel)
       }
+      composable(Screen.Register.route) {
+        RegisterScreen(appState = appState, authViewModel = authViewModel)
+      }
+      composable(Screen.ResetPassword.route) {
+        ResetPasswordScreen(appState = appState, authViewModel = authViewModel)
+      }
       composable(route = Screen.Home.route) {
         HomeScreen(appState = appState, sharedViewModel = viewModel, authViewModel = authViewModel)
       }
-      composable(route = Screen.PlantList.route) {
-        PlantListScreen(appState = appState, sharedViewModel = viewModel)
+      composable(route = Screen.PlantList.route,
+        arguments = listOf(navArgument("level") { type = NavType.IntType })
+      ) {
+        val level = when (it.arguments?.getInt("level")) {
+          1 -> ElevationLevel.LOW
+          2 -> ElevationLevel.HIGH
+          else -> ElevationLevel.BOTH
+        }
+        PlantListScreen(appState = appState, sharedViewModel = viewModel, elevationLevel = level)
       }
-      composable(route = Screen.UserPlantList.route) {
+      composable(
+        route = Screen.UserPlantList.route
+      ) {
         UserPlantListScreen(
           appState = appState,
           sharedViewModel = viewModel,
@@ -135,6 +156,18 @@ fun AgraFastApp(
       }
       composable(route = Screen.Profil.route) {
         ProfileScreen(appState = appState, authViewModel = authViewModel)
+      }
+      composable(
+        route = Screen.UpdateProfile.route,
+        arguments = listOf(navArgument("type") { type = NavType.StringType })
+      ) {
+        val type = when (it.arguments?.getString("type")) {
+          "email" -> UpdateType.EMAIL
+          "password" -> UpdateType.PASSWORD
+          "photo" -> UpdateType.PHOTO
+          else -> UpdateType.PROFILE
+        }
+        UpdateProfileScreen(appState = appState, authViewModel = authViewModel, type)
       }
       composable(route = Screen.PlantDetail.route) {
         PlantDetailScreen(appState = appState, sharedViewModel = viewModel, authViewModel)

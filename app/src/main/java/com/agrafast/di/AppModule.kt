@@ -3,9 +3,12 @@ package com.agrafast.di
 import android.content.Context
 import com.agrafast.App
 import com.agrafast.data.network.ApiServiceProvider
+import com.agrafast.data.network.service.ElevationApiService
 import com.agrafast.data.network.service.PlantApiService
 import com.agrafast.data.repository.PlantRepository
 import com.agrafast.data.repository.UserRepository
+import com.agrafast.util.BASE_URL
+import com.agrafast.util.ELEVATION_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +28,13 @@ object AppModule {
   @Provides
   @Singleton
   fun providePlantApiService(): PlantApiService {
-    return ApiServiceProvider.getApiService(PlantApiService::class.java)
+    return ApiServiceProvider.getApiService(PlantApiService::class.java, BASE_URL)
+  }
+
+  @Provides
+  @Singleton
+  fun provideElevationApiService(): ElevationApiService {
+    return ApiServiceProvider.getApiService(ElevationApiService::class.java, ELEVATION_URL)
   }
 
   @Provides
@@ -37,5 +46,6 @@ object AppModule {
 
   @Provides
   @Singleton
-  fun provideUserRepository(): UserRepository = UserRepository()
+  fun provideUserRepository(elevationApiService: ElevationApiService): UserRepository =
+    UserRepository(elevationApiService)
 }

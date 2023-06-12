@@ -1,11 +1,17 @@
 package com.agrafast.data.repository
 
+import android.content.Context
+import android.location.Geocoder
 import android.util.Log
 import com.agrafast.data.firebase.model.Plant
 import com.agrafast.data.firebase.model.User
+import com.agrafast.data.network.service.ElevationApiService
 import com.agrafast.domain.AuthState
 import com.agrafast.domain.UIState
+import com.agrafast.domain.model.ElevationLevel
+import com.agrafast.domain.model.LatLong
 import com.agrafast.util.addUserSnapshotListenerFlow
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -17,8 +23,13 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
+import java.io.IOException
+import java.util.Locale
+import javax.inject.Inject
 
-class UserRepository {
+class UserRepository @Inject constructor(
+  private val elevationApiService: ElevationApiService
+) {
   private val auth = Firebase.auth
   private val db = Firebase.firestore
   private val usersRef = db.collection("users")
@@ -125,6 +136,73 @@ class UserRepository {
     return Firebase.auth.currentUser != null
   }
 
+  fun resetPassword(email: String): MutableStateFlow<AuthState<Nothing>> {
+    val result: MutableStateFlow<AuthState<Nothing>> = MutableStateFlow(AuthState.Loading)
+    auth.sendPasswordResetEmail(email).addOnCompleteListener {
+      if (it.isSuccessful) {
+        result.tryEmit(AuthState.Success)
+      } else {
+        result.tryEmit(AuthState.Error("Failed"))
+      }
+    }
+    return result
+  }
+
+  fun reauthenticateUser(password: String) {
+    val credential = EmailAuthProvider
+      .getCredential(auth.currentUser!!.email!!, password)
+    auth.currentUser!!.reauthenticate(credential).addOnCompleteListener { }
+
+  }
+
+  fun updateEmail(
+    email: String,
+    password: String
+  ): MutableStateFlow<UIState<Nothing>> {
+    val result: MutableStateFlow<UIState<Nothing>> = MutableStateFlow(UIState.Loading)
+    reauthenticateUser(password)
+    auth.currentUser!!.updateEmail(email).addOnCompleteListener {
+      if (it.isSuccessful) {
+        result.tryEmit(UIState.Success(null))
+      } else {
+        result.tryEmit(UIState.Error("Failed"))
+      }
+    }
+    return result
+  }
+
+  fun updatePassword(
+    password: String
+  ): MutableStateFlow<UIState<Nothing>> {
+    val result: MutableStateFlow<UIState<Nothing>> = MutableStateFlow(UIState.Loading)
+    reauthenticateUser(password)
+    auth.currentUser!!.updatePassword(password).addOnCompleteListener {
+      if (it.isSuccessful) {
+        result.tryEmit(UIState.Success(null))
+      } else {
+        result.tryEmit(UIState.Error("Failed"))
+      }
+    }
+    return result
+  }
+
+  fun updateProfile(name: String, phone: String): MutableStateFlow<UIState<Nothing>> {
+    val authUser = auth.currentUser!!
+    val result: MutableStateFlow<UIState<Nothing>> = MutableStateFlow(UIState.Loading)
+    val userMap = hashMapOf(
+      "name" to name,
+      "phone" to phone,
+    )
+    usersRef.document(authUser.uid).set(userMap).addOnCompleteListener {
+      if (it.isSuccessful) {
+        result.tryEmit(UIState.Success())
+      } else {
+        result.tryEmit(UIState.Error("Failed"))
+      }
+    }
+    return result
+  }
+
   fun getUserData(): Flow<AuthState<User>> {
     val authUser = auth.currentUser
     val userId = authUser?.uid!!
@@ -175,5 +253,43 @@ class UserRepository {
     } catch (e: Exception) {
       UIState.Error(e.message.toString())
     }
+  }
+
+  fun getReadableLocation(latitude: Double, longitude: Double, context: Context): String? {
+    var addressText = ""
+    val geocoder = Geocoder(context, Locale.getDefault())
+    return try {
+      val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+      if (addresses?.isNotEmpty() == true) {
+        val address = addresses.first()
+        addressText = "${address.locality} ${address.subAdminArea}, ${address.adminArea}"
+        Log.d("geolocation", addressText)
+      }
+      addressText
+    } catch (e: IOException) {
+      Log.d("geolocation", e.message.toString())
+      null
+    }
+  }
+
+  suspend fun getUserElevation(latLong: LatLong): ElevationLevel {
+    val locations = "${latLong.latitude},${latLong.longitude}"
+    var elevation: Double? = null
+    elevation = try {
+      val response = elevationApiService.getUserElevation(locations)
+      Log.d("TAG", "getUserElevation: ${response.results.first().elevation} ")
+      response.results.first().elevation
+    } catch (e: Exception) {
+      Log.d("TAG", "getUserElevation: ${e.message.toString()} ")
+      null
+    }
+    val elevationLevel = if (elevation == null) {
+      ElevationLevel.BOTH
+    } else if (elevation <= 200.0) {
+      ElevationLevel.LOW
+    } else {
+      ElevationLevel.HIGH
+    }
+    return elevationLevel
   }
 }

@@ -104,7 +104,10 @@ fun LoginScreen(
             inclusive = true
           }
         }
-      })
+      }, onForgetClick = {
+        appState.navController.navigate(Screen.ResetPassword.route)
+      }
+      )
     }
   }
 

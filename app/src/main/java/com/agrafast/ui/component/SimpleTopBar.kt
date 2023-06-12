@@ -21,7 +21,7 @@ fun SimpleTopBar(title: String) {
     contentAlignment = Alignment.Center
   ) {
     Text(
-      text = stringResource(id = R.string.my_plant),
+      text = title,
       style = MaterialTheme.typography.titleLarge,
       maxLines = 1,
     )
