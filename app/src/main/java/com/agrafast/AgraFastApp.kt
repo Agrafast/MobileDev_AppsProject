@@ -38,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.agrafast.domain.model.ElevationLevel
 import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.AuthViewModel
@@ -134,10 +135,19 @@ fun AgraFastApp(
       composable(route = Screen.Home.route) {
         HomeScreen(appState = appState, sharedViewModel = viewModel, authViewModel = authViewModel)
       }
-      composable(route = Screen.PlantList.route) {
-        PlantListScreen(appState = appState, sharedViewModel = viewModel)
+      composable(route = Screen.PlantList.route,
+        arguments = listOf(navArgument("level") { type = NavType.IntType })
+      ) {
+        val level = when (it.arguments?.getInt("level")) {
+          1 -> ElevationLevel.LOW
+          2 -> ElevationLevel.HIGH
+          else -> ElevationLevel.BOTH
+        }
+        PlantListScreen(appState = appState, sharedViewModel = viewModel, elevationLevel = level)
       }
-      composable(route = Screen.UserPlantList.route) {
+      composable(
+        route = Screen.UserPlantList.route
+      ) {
         UserPlantListScreen(
           appState = appState,
           sharedViewModel = viewModel,

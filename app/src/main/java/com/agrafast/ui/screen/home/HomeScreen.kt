@@ -147,7 +147,7 @@ fun HomeScreen(
         text = stringResource(id = R.string.plant_stuff_title),
         subtitle = elevationText,
         showMore = true,
-        onClickMore = { appState.navController.navigate(Screen.PlantList.route) })
+        onClickMore = { appState.navController.navigate(Screen.PlantList.to(authViewModel.userElevationState.level)) })
     }
     item {
       PlantStuffComp(
@@ -326,15 +326,17 @@ fun PlantStuffComp(
   onClickItem: (Plant) -> Unit
 ) {
   if (plantsState is UIState.Success) {
-    val plants = plantsState.data!!.toMutableList()
+    val plants = plantsState.data!!
+    val plantsToShow = mutableListOf<Plant>()
     if (elevationLevel != ElevationLevel.BOTH) {
       val filteredBoth = plants.filter { it.elevation == ElevationLevel.BOTH.level }
       val filteredOne = plants.filter {
         it.elevation == elevationLevel.level
       }
-      plants.clear()
-      plants.addAll(filteredOne)
-      plants.addAll(filteredBoth)
+      plantsToShow.addAll(filteredOne)
+      plantsToShow.addAll(filteredBoth)
+    } else {
+      plantsToShow.addAll(plants)
     }
     LazyRow(
       horizontalArrangement = Arrangement.spacedBy(12.dp),
