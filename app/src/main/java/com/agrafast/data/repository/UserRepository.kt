@@ -159,6 +159,23 @@ class UserRepository {
     return result
   }
 
+  fun updateProfile(name: String, phone: String): MutableStateFlow<UIState<Nothing>> {
+    val authUser = auth.currentUser!!
+    val result: MutableStateFlow<UIState<Nothing>> = MutableStateFlow(UIState.Loading)
+    val userMap = hashMapOf(
+      "name" to name,
+      "phone" to phone,
+    )
+    usersRef.document(authUser.uid).set(userMap).addOnCompleteListener {
+      if (it.isSuccessful) {
+        result.tryEmit(UIState.Success())
+      } else {
+        result.tryEmit(UIState.Error("Failed"))
+      }
+    }
+    return result
+  }
+
   fun getUserData(): Flow<AuthState<User>> {
     val authUser = auth.currentUser
     val userId = authUser?.uid!!

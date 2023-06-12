@@ -35,6 +35,8 @@ import com.agrafast.ui.component.PrimaryButton
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.theme.AgraFastTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 enum class UpdateType {
   PHOTO,
@@ -48,26 +50,43 @@ fun UpdateProfileScreen(
   appState: AppState,
   authViewModel: AuthViewModel,
   updateType: UpdateType,
-  viewModel: UpdateProfilViewModel = hiltViewModel()
+  viewModel: UpdateProfileViewModel = hiltViewModel()
 ) {
   // State
   val updateState = viewModel.updateState.collectAsState()
 
   val keyBoardController = LocalSoftwareKeyboardController.current
 
-  val pageTitle = when (updateType) {
-    UpdateType.EMAIL -> stringResource(id = R.string.update_email)
-    UpdateType.PHOTO -> stringResource(id = R.string.update_photo)
-    else -> stringResource(id = R.string.update_profile)
+  var pageTitle = ""
+  var typeString = ""
+
+  when (updateType) {
+    UpdateType.EMAIL -> {
+      typeString = "Email"
+      pageTitle = stringResource(id = R.string.update_email)
+    }
+
+    UpdateType.PHOTO -> {
+      typeString = "Photo"
+      pageTitle = stringResource(id = R.string.update_photo)
+    }
+
+    else -> {
+      typeString = "Profile"
+      pageTitle = stringResource(id = R.string.update_profile)
+    }
   }
 
   // Side Effects
   LaunchedEffect(updateState.value) {
     if (updateState.value is UIState.Success<Nothing>) {
-      appState.showSnackbar("Email berhasil diperbarui")
-      authViewModel.updateCurrentAuthUser()
+      appState.showSnackbar("$typeString berhasil diperbarui")
+      appState.coroutineScope.launch {
+        delay(500)
+        appState.navController.navigateUp()
+      }
     } else if (updateState.value is UIState.Error) {
-      appState.showSnackbar("Gagal memperbarui email")
+      appState.showSnackbar("Gagal memperbarui ${typeString.lowercase()}")
       viewModel.updateState.value = UIState.Default
     }
   }
@@ -97,6 +116,8 @@ fun UpdateProfileScreen(
               user = authViewModel.getUser(),
               isLoading = updateState.value is UIState.Loading,
               onUpdateClick = { name, phone ->
+                keyBoardController?.hide()
+                viewModel.updateProfil(name, phone)
               })
           }
         }
