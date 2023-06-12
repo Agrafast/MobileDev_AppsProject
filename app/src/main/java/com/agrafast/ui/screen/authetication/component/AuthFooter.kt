@@ -14,11 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.agrafast.ui.theme.AgraFastTheme
 
 enum class AuthType {
@@ -27,27 +25,38 @@ enum class AuthType {
 }
 
 @Composable
-fun AuthFooter(authType: AuthType, onActionClick: () -> Unit) {
+fun AuthFooter(
+  authType: AuthType, onActionClick: () -> Unit,
+  onForgetClick: (() -> Unit)? = null
+) {
   Column(
     modifier = Modifier
-      .fillMaxWidth().padding(horizontal = 16.dp),
+      .fillMaxWidth()
+      .padding(horizontal = 16.dp),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-//    Text(
-//      modifier = Modifier.fillMaxWidth(),
-//      text = "Forget Password ?",
-//      style = MaterialTheme.typography.labelLarge,
-//      textAlign = TextAlign.Right,
-//      color = MaterialTheme.colorScheme.primary,
-//      fontSize = 14.sp
-//    )
+    if (authType == AuthType.Login) {
+      Spacer(modifier = Modifier.height(16.dp))
+      Text(
+        textAlign = TextAlign.End,
+        modifier = Modifier.clickable(
+          indication = null,
+          interactionSource = MutableInteractionSource()
+        ) {
+          onForgetClick!!()
+        }.fillMaxWidth(),
+        text = "Lupa kata sandi?",
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.bodyMedium
+      )
+    }
     Spacer(modifier = Modifier.height(16.dp))
     Row(
       horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
       val text =
-        if (authType == AuthType.Login) "Doesn't have an account?" else "Already have an account?"
-      val actionText = if (authType == AuthType.Login) "Register" else "Login"
+        if (authType == AuthType.Login) "Belum punya akun?" else "Sudah punya akun?"
+      val actionText = if (authType == AuthType.Login) "Daftar" else "Masuk"
       Text(text = text, style = MaterialTheme.typography.bodyMedium)
       Text(
         modifier = Modifier.clickable(

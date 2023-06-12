@@ -125,6 +125,19 @@ class UserRepository {
     return Firebase.auth.currentUser != null
   }
 
+  fun resetPassword(email: String): MutableStateFlow<AuthState<Nothing>> {
+
+    val result: MutableStateFlow<AuthState<Nothing>> = MutableStateFlow(AuthState.Loading)
+    auth.sendPasswordResetEmail(email).addOnCompleteListener {
+      if (it.isSuccessful) {
+        result.tryEmit(AuthState.Success)
+      } else {
+        result.tryEmit(AuthState.Error("Failed"))
+      }
+    }
+    return result
+  }
+
   fun getUserData(): Flow<AuthState<User>> {
     val authUser = auth.currentUser
     val userId = authUser?.uid!!

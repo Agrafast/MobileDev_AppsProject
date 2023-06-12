@@ -84,7 +84,7 @@ fun RegisterScreen(
         })
     }
     item {
-      AuthFooter(AuthType.Login, onActionClick = {
+      AuthFooter(AuthType.Register, onActionClick = {
         appState.navController.navigate(Screen.Login.route) {
           popUpTo(Screen.Register.route) {
             inclusive = true

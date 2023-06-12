@@ -40,6 +40,7 @@ import com.agrafast.ui.navigation.NavItem
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
+import com.agrafast.ui.screen.authetication.ResetPasswordScreen
 import com.agrafast.ui.screen.authetication.login.LoginScreen
 import com.agrafast.ui.screen.authetication.register.RegisterScreen
 import com.agrafast.ui.screen.detail.PlantDetailScreen
@@ -119,6 +120,9 @@ fun AgraFastApp(
       }
       composable(Screen.Register.route) {
         RegisterScreen(appState = appState, authViewModel = authViewModel)
+      }
+      composable(Screen.ResetPassword.route) {
+        ResetPasswordScreen(appState = appState, authViewModel = authViewModel)
       }
       composable(route = Screen.Home.route) {
         HomeScreen(appState = appState, sharedViewModel = viewModel, authViewModel = authViewModel)

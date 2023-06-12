@@ -20,6 +20,8 @@ sealed class AuthState<out S> {
   object Unauthenticated : AuthState<Nothing>()
   object Default : AuthState<Nothing>()
 
+  object Success: AuthState<Nothing>()
+
   data class Error(val error: String) : AuthState<Nothing>()
   data class Authenticated<out T>(val data: T? = null) : AuthState<T>()
 }
