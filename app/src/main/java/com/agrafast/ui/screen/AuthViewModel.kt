@@ -1,10 +1,16 @@
 package com.agrafast.ui.screen
 
+import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agrafast.data.firebase.model.User
 import com.agrafast.data.repository.UserRepository
 import com.agrafast.domain.AuthState
+import com.agrafast.domain.model.ElevationLevel
+import com.agrafast.domain.model.LatLong
 import com.agrafast.ui.screen.authetication.component.AuthType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +22,9 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
   private val userRepository: UserRepository
 ) : ViewModel() {
+
+  var userElevationState: ElevationLevel by mutableStateOf(ElevationLevel.BOTH)
+    private set
 
   var userState: MutableStateFlow<AuthState<User>> = MutableStateFlow(AuthState.Default)
     private set
@@ -89,4 +98,14 @@ class AuthViewModel @Inject constructor(
     }
   }
 
+
+  fun getLocationName(latLong: LatLong, context: Context): String? {
+    return userRepository.getReadableLocation(latLong.latitude, latLong.longitude, context)
+  }
+
+  fun getUserElevation(latLong: LatLong) {
+    viewModelScope.launch {
+      userElevationState = userRepository.getUserElevation(latLong)
+    }
+  }
 }

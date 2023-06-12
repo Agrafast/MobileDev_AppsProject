@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiServiceProvider {
-  fun <T> getApiService(service: Class<T>): T {
+  fun <T> getApiService(service: Class<T>, baseUrl: String): T {
 //    val logging = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS)
     val httpClient = OkHttpClient.Builder()
 //      .addInterceptor(logging)
@@ -21,7 +21,7 @@ object ApiServiceProvider {
 //      }
       .build()
     val retrofit = Retrofit.Builder()
-      .baseUrl(BASE_URL)
+      .baseUrl(baseUrl)
       .client(httpClient)
       .addConverterFactory(GsonConverterFactory.create())
       .build()

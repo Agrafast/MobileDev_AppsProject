@@ -107,4 +107,10 @@ dependencies {
 
   // Lottie Compose
   implementation "com.airbnb.android:lottie-compose:4.0.0"
+
+  // Accompanist
+  implementation 'com.google.accompanist:accompanist-permissions:0.24.13-rc'
+
+  // Location
+  implementation 'com.google.android.gms:play-services-location:21.0.1'
 }

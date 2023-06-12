@@ -1,5 +1,8 @@
 package com.agrafast.ui.screen.home
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -33,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -51,32 +56,75 @@ import com.agrafast.R
 import com.agrafast.data.firebase.model.Plant
 import com.agrafast.data.firebase.model.User
 import com.agrafast.domain.UIState
+import com.agrafast.domain.model.ElevationLevel
+import com.agrafast.domain.model.LatLong
 import com.agrafast.rememberAppState
 import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.android.gms.location.LocationServices
 
 
+@SuppressLint("MissingPermission")
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
   appState: AppState,
   sharedViewModel: GlobalViewModel,
   authViewModel: AuthViewModel,
+  context: Context = LocalContext.current
 ) {
+  val permissions = listOf(
+    Manifest.permission.ACCESS_COARSE_LOCATION,
+    Manifest.permission.ACCESS_FINE_LOCATION
+  )
+  val fusedLocationService = LocationServices.getFusedLocationProviderClient(context)
 
+  // State
+  val multiplePermissionState =
+    rememberMultiplePermissionsState(permissions = permissions)
   val tutorialPlantsState = sharedViewModel.tutorialPlantsState.collectAsState()
+  val currentLocation = remember { mutableStateOf<LatLong?>(null) }
+
 
   // SideEffects
   LaunchedEffect(Unit) {
     sharedViewModel.fetchTutorialPlants()
+    multiplePermissionState.launchMultiplePermissionRequest()
   }
+  LaunchedEffect(multiplePermissionState) {
+    if (multiplePermissionState.allPermissionsGranted) {
+      fusedLocationService.lastLocation.addOnSuccessListener {
+        it?.let {
+          val latLong = LatLong(it.latitude, it.longitude)
+          currentLocation.value = latLong
+          authViewModel.getUserElevation(latLong)
+        }
+      }
+    }
+  }
+
+//  val allPermissionsRevoked =
+//    multiplePermissionState.permissions.size == multiplePermissionState.revokedPermissions.size
+
   LazyColumn(
     contentPadding = PaddingValues(bottom = 16.dp)
   ) {
+    var locationName: String? = null
+    if (currentLocation.value != null) {
+      locationName = authViewModel.getLocationName(currentLocation.value!!, context)
+    }
     item {
-      UserInfo(user = authViewModel.getUser())
+
+      UserInfo(
+        user = authViewModel.getUser(),
+        locationName = locationName,
+        canAccessLocation = multiplePermissionState.allPermissionsGranted
+      )
     }
     item { SectionTitle(text = stringResource(id = R.string.disease_detector_title)) }
     item {
@@ -88,12 +136,22 @@ fun HomeScreen(
         })
     }
     item {
+      val elevationText = if (authViewModel.userElevationState == ElevationLevel.LOW) {
+        "Rekomendasi tanaman dataran rendah."
+      } else if (authViewModel.userElevationState == ElevationLevel.HIGH) {
+        "Rekomendasi tanaman dataran tinggi."
+      } else {
+        null
+      }
       SectionTitle(
-        text = stringResource(id = R.string.plant_stuff_title), showMore = true,
+        text = stringResource(id = R.string.plant_stuff_title),
+        subtitle = elevationText,
+        showMore = true,
         onClickMore = { appState.navController.navigate(Screen.PlantList.route) })
     }
     item {
       PlantStuffComp(
+        elevationLevel = authViewModel.userElevationState,
         plantsState = tutorialPlantsState.value,
         onClickItem = {
           sharedViewModel.setCurrentTutorialPlant(it)
@@ -104,7 +162,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun UserInfo(modifier: Modifier = Modifier, user: User) {
+fun UserInfo(
+  modifier: Modifier = Modifier,
+  user: User,
+  locationName: String? = null,
+  canAccessLocation: Boolean = false
+) {
   Row(
     modifier = modifier
       .padding(vertical = 16.dp, horizontal = 16.dp),
@@ -133,9 +196,10 @@ fun UserInfo(modifier: Modifier = Modifier, user: User) {
         modifier = Modifier.fillMaxWidth()
       )
       Text(
-        text = user.email,
+        text = locationName ?: "Mohon izinkan akses lokasi",
         style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        maxLines = 1
       )
     }
   }
@@ -143,7 +207,12 @@ fun UserInfo(modifier: Modifier = Modifier, user: User) {
 }
 
 @Composable
-fun SectionTitle(text: String, showMore: Boolean = false, onClickMore: () -> Unit = {}) {
+fun SectionTitle(
+  text: String,
+  subtitle: String? = null,
+  showMore: Boolean = false,
+  onClickMore: () -> Unit = {}
+) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
@@ -151,11 +220,23 @@ fun SectionTitle(text: String, showMore: Boolean = false, onClickMore: () -> Uni
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.SpaceBetween
   ) {
-    Text(
-      text = text,
-      style = MaterialTheme.typography.titleLarge,
-      maxLines = 1,
-    )
+    Column(
+      verticalArrangement = Arrangement.Center
+    ) {
+      Text(
+        text = text,
+        style = MaterialTheme.typography.titleLarge,
+        maxLines = 1,
+      )
+      if (subtitle != null) {
+        Text(
+          text = subtitle,
+          style = MaterialTheme.typography.bodyMedium,
+          maxLines = 1,
+        )
+      }
+
+    }
 
     if (showMore) {
       Text(
@@ -239,7 +320,11 @@ fun DiseaseDetectionPlantCard(plant: Plant, height: Dp, onClickItem: (Plant) -> 
 
 
 @Composable
-fun PlantStuffComp(plantsState: UIState<List<Plant>>, onClickItem: (Plant) -> Unit) {
+fun PlantStuffComp(
+  elevationLevel: ElevationLevel = ElevationLevel.BOTH,
+  plantsState: UIState<List<Plant>>,
+  onClickItem: (Plant) -> Unit
+) {
   if (plantsState is UIState.Success) {
     val plants: List<Plant> = plantsState.data!!.subList(0, 6)
     LazyRow(
