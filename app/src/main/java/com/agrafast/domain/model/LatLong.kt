@@ -5,7 +5,7 @@ class LatLong(
   val longitude: Double = 0.0
 )
 
-enum class ElevationLevel(level: Int) {
+enum class ElevationLevel(val level: Int) {
   HIGH(2),
   LOW(1),
   BOTH(0)

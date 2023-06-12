@@ -326,7 +326,16 @@ fun PlantStuffComp(
   onClickItem: (Plant) -> Unit
 ) {
   if (plantsState is UIState.Success) {
-    val plants: List<Plant> = plantsState.data!!.subList(0, 6)
+    val plants = plantsState.data!!.toMutableList()
+    if (elevationLevel != ElevationLevel.BOTH) {
+      val filteredBoth = plants.filter { it.elevation == ElevationLevel.BOTH.level }
+      val filteredOne = plants.filter {
+        it.elevation == elevationLevel.level
+      }
+      plants.clear()
+      plants.addAll(filteredOne)
+      plants.addAll(filteredBoth)
+    }
     LazyRow(
       horizontalArrangement = Arrangement.spacedBy(12.dp),
       contentPadding = PaddingValues(horizontal = 16.dp)

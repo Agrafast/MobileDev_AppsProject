@@ -1,7 +1,7 @@
 package com.agrafast.data.network.response
 
 data class ElevationResponse(
-  var result: List<ElevationResult>,
+  var results: List<ElevationResult>,
   val status: String
 )
 

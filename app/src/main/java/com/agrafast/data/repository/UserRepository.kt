@@ -261,14 +261,15 @@ class UserRepository @Inject constructor(
   }
 
   suspend fun getUserElevation(latLong: LatLong): ElevationLevel {
-    val locations = "${latLong.latitude}%2C${latLong.longitude}"
+    val locations = "${latLong.latitude},${latLong.longitude}"
     var elevation: Double? = null
     elevation = try {
       val response = elevationApiService.getUserElevation(locations)
-      response.result.first().elevation
+      Log.d("TAG", "getUserElevation: ${response.results.first().elevation} ")
+      response.results.first().elevation
     } catch (e: Exception) {
       Log.d("TAG", "getUserElevation: ${e.message.toString()} ")
-      200.0
+      null
     }
     val elevationLevel = if (elevation == null) {
       ElevationLevel.BOTH
@@ -277,7 +278,6 @@ class UserRepository @Inject constructor(
     } else {
       ElevationLevel.HIGH
     }
-
     return elevationLevel
   }
 }
