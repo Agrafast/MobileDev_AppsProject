@@ -10,6 +10,7 @@ import com.agrafast.domain.AuthState
 import com.agrafast.domain.UIState
 import com.agrafast.domain.model.ElevationLevel
 import com.agrafast.domain.model.LatLong
+import com.agrafast.util.WRONG_PASSWORD_ERROR
 import com.agrafast.util.addUserSnapshotListenerFlow
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -20,6 +21,8 @@ import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
@@ -148,41 +151,58 @@ class UserRepository @Inject constructor(
     return result
   }
 
-  fun reauthenticateUser(password: String) {
+  private suspend fun reAuthenticateUser(password: String): AuthState<Nothing> {
     val credential = EmailAuthProvider
       .getCredential(auth.currentUser!!.email!!, password)
-    auth.currentUser!!.reauthenticate(credential).addOnCompleteListener { }
-
+    return try {
+      auth.currentUser!!.reauthenticate(credential).await()
+      AuthState.Authenticated(null)
+    } catch (e: Exception) {
+      Log.d("TAG", "reAuthenticateUser: ${e.message}")
+      AuthState.Unauthenticated
+    }
   }
 
-  fun updateEmail(
+  suspend fun updateEmail(
+    scope: CoroutineScope,
     email: String,
     password: String
   ): MutableStateFlow<UIState<Nothing>> {
     val result: MutableStateFlow<UIState<Nothing>> = MutableStateFlow(UIState.Loading)
-    reauthenticateUser(password)
-    auth.currentUser!!.updateEmail(email).addOnCompleteListener {
-      if (it.isSuccessful) {
-        result.tryEmit(UIState.Success(null))
-      } else {
-        result.tryEmit(UIState.Error("Failed"))
+    val reAuth = scope.async { return@async reAuthenticateUser(password) }.await()
+    if (reAuth is AuthState.Unauthenticated) {
+      result.tryEmit(UIState.Error(WRONG_PASSWORD_ERROR))
+    } else {
+      auth.currentUser!!.updateEmail(email).addOnCompleteListener {
+        if (it.isSuccessful) {
+          result.tryEmit(UIState.Success(null))
+        } else {
+          result.tryEmit(UIState.Error("Failed"))
+        }
       }
     }
     return result
   }
 
-  fun updatePassword(
-    password: String
+  suspend fun updatePassword(
+    scope: CoroutineScope,
+    oldPassword: String,
+    newPassword: String,
   ): MutableStateFlow<UIState<Nothing>> {
     val result: MutableStateFlow<UIState<Nothing>> = MutableStateFlow(UIState.Loading)
-    reauthenticateUser(password)
-    auth.currentUser!!.updatePassword(password).addOnCompleteListener {
-      if (it.isSuccessful) {
-        result.tryEmit(UIState.Success(null))
-      } else {
-        result.tryEmit(UIState.Error("Failed"))
+    val reAuth = scope.async { return@async reAuthenticateUser(oldPassword) }.await()
+    if (reAuth is AuthState.Unauthenticated) {
+      result.tryEmit(UIState.Error(WRONG_PASSWORD_ERROR))
+    } else {
+      auth.currentUser!!.updatePassword(newPassword).addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+          result.tryEmit(UIState.Success(null))
+        } else {
+          result.tryEmit(UIState.Error("Failed"))
+        }
       }
     }
+    Log.d("TAG", "updatePassword: $reAuth")
     return result
   }
 
