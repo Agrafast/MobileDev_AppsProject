@@ -85,11 +85,28 @@ fun HomeScreen(
   val fusedLocationService = LocationServices.getFusedLocationProviderClient(context)
 
   // State
-  val multiplePermissionState =
-    rememberMultiplePermissionsState(permissions = permissions)
   val tutorialPlantsState = sharedViewModel.tutorialPlantsState.collectAsState()
   val currentLocation = remember { mutableStateOf<LatLong?>(null) }
 
+
+  // Function{
+  fun getLocation() {
+    fusedLocationService.lastLocation.addOnSuccessListener {
+      it?.let {
+        val latLong = LatLong(it.latitude, it.longitude)
+        currentLocation.value = latLong
+        authViewModel.getUserElevation(latLong)
+      }
+    }
+  }
+
+  // State, need to put last
+  val multiplePermissionState =
+    rememberMultiplePermissionsState(permissions = permissions, onPermissionsResult = {
+      if (it[permissions[0]] == true && it[permissions[0]] == true) {
+        getLocation()
+      }
+    })
 
   // SideEffects
   LaunchedEffect(Unit) {
@@ -98,18 +115,9 @@ fun HomeScreen(
   }
   LaunchedEffect(multiplePermissionState) {
     if (multiplePermissionState.allPermissionsGranted) {
-      fusedLocationService.lastLocation.addOnSuccessListener {
-        it?.let {
-          val latLong = LatLong(it.latitude, it.longitude)
-          currentLocation.value = latLong
-          authViewModel.getUserElevation(latLong)
-        }
-      }
+      getLocation()
     }
   }
-
-//  val allPermissionsRevoked =
-//    multiplePermissionState.permissions.size == multiplePermissionState.revokedPermissions.size
 
   LazyColumn(
     contentPadding = PaddingValues(bottom = 16.dp)
