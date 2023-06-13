@@ -1,5 +1,6 @@
 package com.agrafast.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,7 +16,8 @@ fun SimpleTopBar(title: String) {
   Box(
     modifier = Modifier
       .fillMaxWidth()
-      .height(64.dp),
+      .height(64.dp)
+      .background(MaterialTheme.colorScheme.background),
     contentAlignment = Alignment.Center
   ) {
     Text(

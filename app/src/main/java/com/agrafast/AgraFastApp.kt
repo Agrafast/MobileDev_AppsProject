@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -105,7 +106,9 @@ fun AgraFastApp(
         enter = fadeIn(),
         exit = fadeOut(),
       ) {
-        FloatingActionButton(onClick = { fabOnclick.value?.invoke() }) {
+        FloatingActionButton(
+          containerColor = MaterialTheme.colorScheme.tertiary,
+          onClick = { fabOnclick.value?.invoke() }) {
           fabContent.value.invoke()
         }
       }
@@ -135,7 +138,8 @@ fun AgraFastApp(
       composable(route = Screen.Home.route) {
         HomeScreen(appState = appState, sharedViewModel = viewModel, authViewModel = authViewModel)
       }
-      composable(route = Screen.PlantList.route,
+      composable(
+        route = Screen.PlantList.route,
         arguments = listOf(navArgument("level") { type = NavType.IntType })
       ) {
         val level = when (it.arguments?.getInt("level")) {

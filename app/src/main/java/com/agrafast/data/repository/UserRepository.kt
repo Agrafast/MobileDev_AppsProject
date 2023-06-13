@@ -282,7 +282,7 @@ class UserRepository @Inject constructor(
       val addresses = geocoder.getFromLocation(latitude, longitude, 1)
       if (addresses?.isNotEmpty() == true) {
         val address = addresses.first()
-        addressText = "${address.locality} ${address.subAdminArea}, ${address.adminArea}"
+        addressText = "${address.locality}, ${address.subAdminArea}, ${address.adminArea}"
         Log.d("geolocation", addressText)
       }
       addressText
