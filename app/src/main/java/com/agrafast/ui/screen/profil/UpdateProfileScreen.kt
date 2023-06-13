@@ -35,6 +35,7 @@ import com.agrafast.ui.component.PrimaryButton
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.theme.AgraFastTheme
+import com.agrafast.util.WRONG_PASSWORD_ERROR
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -55,6 +56,7 @@ fun UpdateProfileScreen(
 ) {
   // State
   val updateState = viewModel.updateState.collectAsState()
+  val errorMessage = viewModel.errorMessage.collectAsState()
 
   val keyBoardController = LocalSoftwareKeyboardController.current
 
@@ -93,6 +95,7 @@ fun UpdateProfileScreen(
         appState.navController.navigateUp()
       }
     } else if (updateState.value is UIState.Error) {
+      viewModel.getErrorMessage()
       appState.showSnackbar("Gagal memperbarui ${typeString.lowercase()}")
       viewModel.updateState.value = UIState.Default
     }
@@ -112,6 +115,7 @@ fun UpdateProfileScreen(
             UpdateEmailForm(
               user = authViewModel.getUser(),
               isLoading = updateState.value is UIState.Loading,
+              errorMessage = errorMessage.value,
               onUpdateClick = { newEmail, password ->
                 keyBoardController?.hide()
                 viewModel.updateEmail(newEmail, password)
@@ -121,9 +125,10 @@ fun UpdateProfileScreen(
           UpdateType.PASSWORD -> {
             UpdatePasswordForm(
               isLoading = updateState.value is UIState.Loading,
-              onUpdateClick = { password ->
+              errorMessage = errorMessage.value,
+              onUpdateClick = { old, new->
                 keyBoardController?.hide()
-                viewModel.updatePassword(password)
+                viewModel.updatePassword( oldPassword =  old, newPassword = new)
               })
           }
 
@@ -201,7 +206,7 @@ fun UpdateEmailForm(
 
 @Composable
 fun UpdatePasswordForm(
-  onUpdateClick: (password: String) -> Unit,
+  onUpdateClick: (oldPassword:String, newPassword: String) -> Unit,
   isLoading: Boolean,
   errorMessage: String? = null
 ) {
@@ -217,7 +222,7 @@ fun UpdatePasswordForm(
     isNewPasswordError = newPassword.isEmpty() || newPassword.length < 8
     isConfirmationPasswordError = newPassword != confirmationPassword
     if (!isOldPasswordError && !isNewPasswordError && !isConfirmationPasswordError) {
-      onUpdateClick(newPassword)
+      onUpdateClick(oldPassword, newPassword)
     }
   }
   Column(
