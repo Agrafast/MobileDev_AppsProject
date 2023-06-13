@@ -351,7 +351,7 @@ fun PlantStuffComp(
       horizontalArrangement = Arrangement.spacedBy(12.dp),
       contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-      items(plants) {
+      items(plantsToShow.subList(0,6)) {
         PlantCard(plant = it, onClickItem = onClickItem)
       }
     }

@@ -58,11 +58,11 @@ fun UserPlantListScreen(
               sharedViewModel.setCurrentTutorialPlant(it)
               appState.navController.navigate(route = Screen.PlantDetail.route)
             },
-            onDismiss = { plant, index ->
+            onDismiss = { pPlant, pIndex ->
               viewModel.deleteFromUserPlant(
                 userId = user.id,
-                plant = plant,
-                index,
+                plant = pPlant,
+                pIndex,
                 appState = appState,
               )
             }

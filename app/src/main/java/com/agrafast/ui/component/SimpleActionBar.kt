@@ -38,6 +38,8 @@ fun SimpleActionBar(
         endY = Float.POSITIVE_INFINITY
       )
     )
+  } else {
+    rowModifier = rowModifier.background(MaterialTheme.colorScheme.background)
   }
   Row(
     modifier = rowModifier,
