@@ -35,7 +35,6 @@ import com.agrafast.ui.component.PrimaryButton
 import com.agrafast.ui.component.SimpleActionBar
 import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.theme.AgraFastTheme
-import com.agrafast.util.WRONG_PASSWORD_ERROR
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

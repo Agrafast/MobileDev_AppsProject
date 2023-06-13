@@ -1,8 +1,7 @@
 package com.agrafast.data.network
 
-import com.agrafast.util.BASE_URL
-import okhttp3.OkHttpClient
 //import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
