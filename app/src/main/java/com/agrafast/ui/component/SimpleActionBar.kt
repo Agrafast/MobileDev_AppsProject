@@ -3,9 +3,7 @@ package com.agrafast.ui.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -40,6 +38,8 @@ fun SimpleActionBar(
         endY = Float.POSITIVE_INFINITY
       )
     )
+  } else {
+    rowModifier = rowModifier.background(MaterialTheme.colorScheme.background)
   }
   Row(
     modifier = rowModifier,

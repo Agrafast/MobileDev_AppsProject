@@ -1,11 +1,16 @@
 package com.agrafast.ui.screen.plant
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenuItem
@@ -16,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -31,14 +35,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.agrafast.AppState
 import com.agrafast.R
+import com.agrafast.domain.UIState
 import com.agrafast.domain.model.ElevationLevel
 import com.agrafast.rememberAppState
-import com.agrafast.ui.component.PlantList
+import com.agrafast.ui.component.PlantListItem
 import com.agrafast.ui.component.SimpleActionBar
+import com.agrafast.ui.component.StatusComp
 import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlantListScreen(
   appState: AppState,
@@ -65,27 +72,46 @@ fun PlantListScreen(
     Log.d("TAG", "PlantListScreen: filtered ${filtered.size}")
   }
   Surface {
-    Column {
-      SimpleActionBar(
-        title = stringResource(id = R.string.plants),
-        onBackClicked = { appState.navController.navigateUp() })
-      Spacer(modifier = Modifier.height(8.dp))
-      SearchBox(
-        value = searchValue.value,
-        elevationLevel = selectedLevel.value,
-        onValueChange = {
-          searchValue.value = it
+    LazyColumn(
+      modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+      stickyHeader {
+        SimpleActionBar(
+          title = stringResource(id = R.string.plants),
+          onBackClicked = { appState.navController.navigateUp() })
+      }
+      item {
+        SearchBox(
+          value = searchValue.value,
+          elevationLevel = selectedLevel.value,
+          onValueChange = {
+            searchValue.value = it
 
-        },
-        onDropDownSelected = {
-          selectedLevel.value = it
+          },
+          onDropDownSelected = {
+            selectedLevel.value = it
+          }
+        )
+      }
+      if (plantsState.isNotEmpty()) {
+        itemsIndexed(plantsState, key = { _, it -> it.id }) { _, plant ->
+          PlantListItem(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            plant = plant,
+            onClick = {
+              sharedViewModel.setCurrentTutorialPlant(it)
+              appState.navController.navigate(route = Screen.PlantDetail.route)
+            }
+          )
         }
-      )
-      Spacer(modifier = Modifier.height(16.dp))
-      PlantList(plantsState, onItemClick = {
-        sharedViewModel.setCurrentTutorialPlant(it)
-        appState.navController.navigate(route = Screen.PlantDetail.route)
-      })
+      } else {
+        item {
+          StatusComp(UIState.Empty)
+        }
+      }
+      item {
+        Spacer(modifier = Modifier.height(8.dp))
+      }
     }
   }
 }

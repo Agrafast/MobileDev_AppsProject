@@ -1,6 +1,7 @@
 package com.agrafast.ui.screen.profil
 
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,8 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Divider
@@ -46,6 +50,7 @@ import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProfileScreen(
   appState: AppState,
@@ -55,15 +60,21 @@ fun ProfileScreen(
   val userState = authViewModel.userState.collectAsState()
   val user = remember { (userState.value as AuthState.Authenticated<User>).data!! }
   Surface {
-    Column(
+    LazyColumn(
       Modifier
-        .fillMaxWidth()
-        .padding(16.dp),
+        .fillMaxHeight()
+        .fillMaxWidth(),
     ) {
-      SimpleTopBar(stringResource(id = R.string.profile))
-      ProfilHeader(modifier = Modifier.padding(top = 24.dp, bottom = 32.dp), user = user)
-      Divider()
-      ProfilDetail(user, appState, authViewModel)
+     stickyHeader {  SimpleTopBar(stringResource(id = R.string.profile)) }
+      item {
+        ProfilHeader(modifier = Modifier.padding(top = 24.dp, bottom = 32.dp), user = user)
+      }
+      item {
+        Divider()
+      }
+      item {
+        ProfilDetail(user, appState, authViewModel)
+      }
 //      Spacer(modifier = Modifier.padding(top = 24.dp))
 //      ProfileUpdateFunctionallity()
 //      ProfileUpdateFunctionallity(
@@ -81,7 +92,8 @@ fun ProfileScreen(
 @Composable
 fun ProfilHeader(modifier: Modifier = Modifier, user: User) {
   Column(
-    modifier = modifier.fillMaxWidth(),
+    modifier = modifier
+      .fillMaxWidth(),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     Surface(
@@ -134,21 +146,21 @@ fun ProfilDetail(user: User, appState: AppState, authViewModel: AuthViewModel) {
       title = "Telepon",
       subtitle = user.phone
     )
-    ProfilDetailItem(
-      painter = painterResource(id = R.drawable.ic_map),
-      title = "Alamat",
-      subtitle = user.phone
-    )
+//    ProfilDetailItem(
+//      painter = painterResource(id = R.drawable.ic_map),
+//      title = "Alamat",
+//      subtitle = user.phone
+//    )
     ProfilDetailItem(
       painter = painterResource(id = R.drawable.ic_setting),
-      title = "Perbarui email",
+      title = "Ubah email",
       onClick = {
         appState.navController.navigate(Screen.UpdateProfile.to("email"))
       }
     )
     ProfilDetailItem(
       painter = painterResource(id = R.drawable.ic_setting),
-      title = "Perbarui kata sandi",
+      title = "Ubah kata sandi",
       onClick = {
         appState.navController.navigate(Screen.UpdateProfile.to("password"))
       }
@@ -175,27 +187,27 @@ fun ProfilDetail(user: User, appState: AppState, authViewModel: AuthViewModel) {
 
   }
 }
-
-@Composable
-fun ProfileUpdateFunctionallity(
-  Icon: ImageVector = Icons.Outlined.Person,
-  text: String = "Update Profile"
-) {
-  Spacer(modifier = Modifier.height(8.dp))
-  Row() {
-    Icon(
-      imageVector = Icon,
-      contentDescription = null
-    )
-    Spacer(modifier = Modifier.padding(end = 4.dp))
-    Text(
-      text = text,
-      style = MaterialTheme.typography.titleMedium,
-      color = MaterialTheme.colorScheme.primary,
-      maxLines = 1,
-    )
-  }
-}
+//
+//@Composable
+//fun ProfileUpdateFunctionallity(
+//  Icon: ImageVector = Icons.Outlined.Person,
+//  text: String = "Update Profile"
+//) {
+//  Spacer(modifier = Modifier.height(8.dp))
+//  Row() {
+//    Icon(
+//      imageVector = Icon,
+//      contentDescription = null
+//    )
+//    Spacer(modifier = Modifier.padding(end = 4.dp))
+//    Text(
+//      text = text,
+//      style = MaterialTheme.typography.titleMedium,
+//      color = MaterialTheme.colorScheme.primary,
+//      maxLines = 1,
+//    )
+//  }
+//}
 
 @Composable
 fun ProfilDetailItem(
@@ -215,6 +227,7 @@ fun ProfilDetailItem(
   }
   Row(
     modifier = mod
+      .padding(horizontal = 16.dp)
       .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(16.dp)

@@ -19,3 +19,14 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keepclasseswithmembers class * {
+    @retrofit2.http.* <methods>;
+}
+-keepclassmembernames interface * {
+    @retrofit2.http.* <methods>;
+}
+
+-keepclassmembers class com.agrafast.data.firebase.model.** { *; }
+-keepclassmembers class com.agrafast.data.domain.model.** { *; }
+-keepclassmembers class com.agrafast.data.network.response.** { *; }

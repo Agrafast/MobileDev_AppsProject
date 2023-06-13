@@ -72,7 +72,7 @@ class UserRepository @Inject constructor(
             }
 
             else -> {
-              Log.d("TAG", "signInAndGetData: taskFailed")
+//              Log.d("TAG", "signInAndGetData: taskFailed")
               result.tryEmit(AuthState.Unauthenticated)
             }
           }
@@ -99,16 +99,16 @@ class UserRepository @Inject constructor(
                 val user =
                   it.result.toObject<User>()?.setId(authUser.uid)?.setEmail(authUser.email!!)
                 result.tryEmit(AuthState.Authenticated(user))
-                Log.d("TAG", "signInAndGetData: authDataSuccess")
+//                Log.d("TAG", "signInAndGetData: authDataSuccess")
               } catch (e: Exception) {
                 result.tryEmit(AuthState.Error(e.message.toString()))
-                Log.d("TAG", "signInAndGetData: ${e.message.toString()}")
+//                Log.d("TAG", "signInAndGetData: ${e.message.toString()}")
               }
             } else if (it.isSuccessful && !it.result.exists()) {
               result.tryEmit(AuthState.UserDataNotExist)
             } else {
               result.tryEmit(AuthState.Error(it.exception?.message.toString()))
-              Log.d("TAG", "signInAndGetData: ${it.exception?.message.toString()}")
+//              Log.d("TAG", "signInAndGetData: ${it.exception?.message.toString()}")
             }
           }
         } else {
@@ -122,7 +122,7 @@ class UserRepository @Inject constructor(
             }
 
             else -> {
-              Log.d("TAG", "signInAndGetData: taskFailed")
+//              Log.d("TAG", "signInAndGetData: taskFailed")
               result.tryEmit(AuthState.Unauthenticated)
             }
           }
@@ -158,7 +158,7 @@ class UserRepository @Inject constructor(
       auth.currentUser!!.reauthenticate(credential).await()
       AuthState.Authenticated(null)
     } catch (e: Exception) {
-      Log.d("TAG", "reAuthenticateUser: ${e.message}")
+//      Log.d("TAG", "reAuthenticateUser: ${e.message}")
       AuthState.Unauthenticated
     }
   }
@@ -282,12 +282,10 @@ class UserRepository @Inject constructor(
       val addresses = geocoder.getFromLocation(latitude, longitude, 1)
       if (addresses?.isNotEmpty() == true) {
         val address = addresses.first()
-        addressText = "${address.locality} ${address.subAdminArea}, ${address.adminArea}"
-        Log.d("geolocation", addressText)
+        addressText = "${address.locality}, ${address.subAdminArea}, ${address.adminArea}"
       }
       addressText
     } catch (e: IOException) {
-      Log.d("geolocation", e.message.toString())
       null
     }
   }
@@ -297,10 +295,8 @@ class UserRepository @Inject constructor(
     var elevation: Double? = null
     elevation = try {
       val response = elevationApiService.getUserElevation(locations)
-      Log.d("TAG", "getUserElevation: ${response.results.first().elevation} ")
       response.results.first().elevation
     } catch (e: Exception) {
-      Log.d("TAG", "getUserElevation: ${e.message.toString()} ")
       null
     }
     val elevationLevel = if (elevation == null) {

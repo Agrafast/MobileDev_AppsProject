@@ -1,6 +1,5 @@
 package com.agrafast.ui.screen.authetication
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.agrafast.AppState

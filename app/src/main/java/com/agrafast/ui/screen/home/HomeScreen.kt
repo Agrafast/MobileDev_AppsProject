@@ -87,6 +87,7 @@ fun HomeScreen(
   // State
   val tutorialPlantsState = sharedViewModel.tutorialPlantsState.collectAsState()
   val currentLocation = remember { mutableStateOf<LatLong?>(null) }
+  val user: User = remember { authViewModel.getUser() }
 
 
   // Function{
@@ -129,7 +130,7 @@ fun HomeScreen(
     item {
 
       UserInfo(
-        user = authViewModel.getUser(),
+        user = user,
         locationName = locationName,
         canAccessLocation = multiplePermissionState.allPermissionsGranted
       )
@@ -350,7 +351,7 @@ fun PlantStuffComp(
       horizontalArrangement = Arrangement.spacedBy(12.dp),
       contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-      items(plants) {
+      items(plantsToShow.subList(0,6)) {
         PlantCard(plant = it, onClickItem = onClickItem)
       }
     }
