@@ -54,20 +54,24 @@ fun PlantListScreen(
 ) {
   val plants = sharedViewModel.getTutorialPlants()
   var plantsState by remember { mutableStateOf(plants) }
-  val searchValue: MutableState<String> = remember { mutableStateOf("") }
-  val selectedLevel: MutableState<ElevationLevel> = remember { mutableStateOf(elevationLevel) }
+//  val searchValue: MutableState<String> =
+//    remember { mutableStateOf(sharedViewModel.currentSearchQuery) }
+//  val selectedLevel: MutableState<ElevationLevel> = remember { mutableStateOf(ElevationLevel.BOTH) }
+  val searchValue = sharedViewModel.currentSearchQuery
+  val selectedLevel = sharedViewModel.currentSelectedElevattion
 
+  
 
-  LaunchedEffect(searchValue.value, selectedLevel.value) {
+  LaunchedEffect(searchValue, selectedLevel) {
     var filtered = plants
-    if (selectedLevel.value.level != ElevationLevel.BOTH.level) {
-      filtered = filtered.filter { it.elevation == selectedLevel.value.level }
+    if (selectedLevel.level != ElevationLevel.BOTH.level) {
+      filtered = filtered.filter { it.elevation == selectedLevel.level }
     }
     plantsState = filtered.filter { plant ->
       plant.title.contains(
-        searchValue.value,
+        searchValue,
         true
-      ) or plant.botanical_name.contains(searchValue.value, true)
+      ) or plant.botanical_name.contains(searchValue, true)
     }
     Log.d("TAG", "PlantListScreen: filtered ${filtered.size}")
   }
@@ -82,14 +86,14 @@ fun PlantListScreen(
       }
       item {
         SearchBox(
-          value = searchValue.value,
-          elevationLevel = selectedLevel.value,
+          value = searchValue,
+          elevationLevel = selectedLevel,
           onValueChange = {
-            searchValue.value = it
+            sharedViewModel.currentSearchQuery = it
 
           },
           onDropDownSelected = {
-            selectedLevel.value = it
+            sharedViewModel.currentSelectedElevattion = it
           }
         )
       }
