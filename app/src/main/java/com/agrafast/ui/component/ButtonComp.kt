@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PrimaryButton(
   modifier: Modifier = Modifier,
+  background: Color = MaterialTheme.colorScheme.primary,
+  color: Color = Color.White,
   text: String,
   onClick: () -> Unit,
   isLoading: Boolean = false
@@ -26,16 +28,18 @@ fun PrimaryButton(
   Box(
     Modifier
       .fillMaxWidth()
-      .animateContentSize(), contentAlignment = Alignment.Center) {
+      .animateContentSize(), contentAlignment = Alignment.Center
+  ) {
     Button(
       onClick = onClick,
       modifier = modifier
-        .fillMaxWidth().height(48.dp),
+        .fillMaxWidth()
+        .height(48.dp),
       contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
       shape = RoundedCornerShape(12.dp),
       colors = ButtonDefaults.buttonColors(
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = Color.White
+        containerColor = background,
+        contentColor = color
       )
     ) {
       if (!isLoading) {
