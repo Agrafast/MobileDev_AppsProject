@@ -145,16 +145,19 @@ fun HomeScreen(
         })
     }
     item {
-      val elevationText = if (authViewModel.userElevationState == ElevationLevel.LOW) {
-        "Rekomendasi tanaman dataran rendah."
-      } else if (authViewModel.userElevationState == ElevationLevel.HIGH) {
-        "Rekomendasi tanaman dataran tinggi."
-      } else {
+      val elevationText = if (authViewModel.userElevationState == ElevationLevel.BOTH) {
+//        "Rekomendasi tanaman di daeerah anda."
         null
+      }
+//      else if (authViewModel.userElevationState == ElevationLevel.HIGH) {
+//        "Rekomendasi tanaman dataran tinggi."
+//      }
+      else {
+        "Rekomendasi yang cocok di daerah anda."
       }
       SectionTitle(
         text = stringResource(id = R.string.plant_stuff_title),
-        subtitle = elevationText,
+        subtitle = "Rekomendasi yang cocok di daerah anda.",
         showMore = true,
         onClickMore = { appState.navController.navigate(Screen.PlantList.to(authViewModel.userElevationState.level)) })
     }
@@ -222,39 +225,40 @@ fun SectionTitle(
   showMore: Boolean = false,
   onClickMore: () -> Unit = {}
 ) {
-  Row(
+  Column(
     modifier = Modifier
       .fillMaxWidth()
       .padding(end = 16.dp, start = 16.dp, top = 20.dp, bottom = 8.dp),
-    verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.SpaceBetween
+    verticalArrangement = Arrangement.Center
   ) {
-    Column(
-      verticalArrangement = Arrangement.Center
+    Row(
+      modifier = Modifier
+        .fillMaxWidth(),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.SpaceBetween
     ) {
       Text(
         text = text,
         style = MaterialTheme.typography.titleLarge,
         maxLines = 1,
       )
-      if (subtitle != null) {
+      if (showMore) {
         Text(
-          text = subtitle,
+          modifier = Modifier.clickable(onClick = onClickMore),
+          text = "Selengkapnya",
           style = MaterialTheme.typography.bodyMedium,
           maxLines = 1,
         )
       }
-
     }
-
-    if (showMore) {
+    if (subtitle != null) {
       Text(
-        modifier = Modifier.clickable(onClick = onClickMore),
-        text = "Selengkapnya",
+        text = subtitle,
         style = MaterialTheme.typography.bodyMedium,
         maxLines = 1,
       )
     }
+
   }
 }
 
@@ -351,7 +355,7 @@ fun PlantStuffComp(
       horizontalArrangement = Arrangement.spacedBy(12.dp),
       contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-      items(plantsToShow.subList(0,6)) {
+      items(plantsToShow.subList(0, 6)) {
         PlantCard(plant = it, onClickItem = onClickItem)
       }
     }
