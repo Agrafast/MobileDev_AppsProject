@@ -1,6 +1,7 @@
 package com.agrafast.ui.screen.detail
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -16,11 +18,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,7 +50,11 @@ import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
 import com.agrafast.ui.theme.Gray200
+import com.agrafast.ui.theme.Gray400
 import com.agrafast.util.formatWithOrdered
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -104,6 +116,7 @@ fun PlantDetailScreen(
 
 @Composable
 fun PlantImageComp(imageModel: Any, onBackClicked: () -> Unit) {
+  val isImageLoadError: MutableState<Boolean?> = rememberSaveable { mutableStateOf(null) }
   Surface(color = MaterialTheme.colorScheme.secondaryContainer) {
     Box(
       modifier = Modifier
@@ -112,14 +125,39 @@ fun PlantImageComp(imageModel: Any, onBackClicked: () -> Unit) {
         .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
         .background(Gray200)
     ) {
-      AsyncImage(
-        model = imageModel,
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
-          .fillMaxSize()
-          .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
-      )
+      if (isImageLoadError.value != true) {
+        AsyncImage(
+          model = imageModel,
+          contentDescription = null,
+          contentScale = ContentScale.Crop,
+          modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+            .placeholder(
+              visible = isImageLoadError.value == null,
+              highlight = PlaceholderHighlight.shimmer(),
+            ),
+          onLoading = {
+            isImageLoadError.value = null
+          },
+          onError = {
+            isImageLoadError.value = true
+          },
+          onSuccess = {
+            isImageLoadError.value = false
+          }
+        )
+      } else {
+        Image(
+          painter = painterResource(id = R.drawable.ic_gallery_broken),
+          modifier = Modifier
+            .align(Alignment.Center)
+            .size(128.dp)
+            .padding(16.dp),
+          contentDescription = null,
+          colorFilter = ColorFilter.tint(Gray400)
+        )
+      }
       SimpleActionBar(
         title = stringResource(id = R.string.plant_tutorial),
         onBackClicked = onBackClicked,

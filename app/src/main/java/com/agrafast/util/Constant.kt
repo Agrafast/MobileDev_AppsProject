@@ -7,3 +7,5 @@ const val ELEVATION_URL = "https://maps.googleapis.com/maps/api/elevation/"
 const val HEALTHY_NAME = "healthy"
 
 const val WRONG_PASSWORD_ERROR = "wrong-password"
+
+const val USER_PREFERENCE = "user_prefs"

@@ -3,6 +3,7 @@ package com.agrafast.ui.screen.home
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,16 +36,20 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -64,8 +69,13 @@ import com.agrafast.ui.navigation.Screen
 import com.agrafast.ui.screen.AuthViewModel
 import com.agrafast.ui.screen.GlobalViewModel
 import com.agrafast.ui.theme.AgraFastTheme
+import com.agrafast.ui.theme.Gray100
+import com.agrafast.ui.theme.Gray400
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 import com.google.android.gms.location.LocationServices
 
 
@@ -287,23 +297,47 @@ fun DiseaseDetectionComp(plants: List<Plant>, onClickItem: (Plant) -> Unit) {
 
 @Composable
 fun DiseaseDetectionPlantCard(plant: Plant, height: Dp, onClickItem: (Plant) -> Unit) {
+  val isImageLoadError: MutableState<Boolean?> = rememberSaveable { mutableStateOf(null) }
   Box(
     modifier = Modifier
       .height(height = height)
       .clip(RoundedCornerShape(12.dp))
       .fillMaxWidth()
+      .background(Gray100)
       .clickable {
         onClickItem(plant)
       }
   ) {
-    AsyncImage(
-      model = plant.image_url,
-      contentDescription = plant.title,
-      contentScale = ContentScale.Crop,
-      modifier = Modifier
-        .fillMaxSize()
-        .fillMaxHeight()
-    )
+    if (isImageLoadError.value != true) {
+      AsyncImage(
+        model = plant.image_url,
+        contentDescription = plant.title,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+          .fillMaxSize()
+          .fillMaxHeight()
+          .placeholder(
+            visible = isImageLoadError.value == null,
+            highlight = PlaceholderHighlight.shimmer(),
+          ),
+        onError = {
+          isImageLoadError.value = true
+        },
+        onSuccess = {
+          isImageLoadError.value = false
+        }
+      )
+    } else {
+      Image(
+        painter = painterResource(id = R.drawable.ic_gallery_broken),
+        modifier = Modifier
+          .size(96.dp)
+          .padding(16.dp)
+          .align(Alignment.Center),
+        contentDescription = null,
+        colorFilter = ColorFilter.tint(Gray400)
+      )
+    }
     Box(
       modifier = Modifier
         .fillMaxSize()
@@ -313,7 +347,7 @@ fun DiseaseDetectionPlantCard(plant: Plant, height: Dp, onClickItem: (Plant) -> 
               Color.Black, Color.Transparent
             ),
             startY = Float.POSITIVE_INFINITY,
-            endY = height.value - 64f
+            endY = height.value - 32f
           )
         )
     ) {
@@ -366,20 +400,52 @@ fun PlantStuffComp(
 
 @Composable
 fun PlantCard(plant: Plant, onClickItem: (Plant) -> Unit) {
+  val isImageLoadError: MutableState<Boolean?> = rememberSaveable { mutableStateOf(null) }
   Column(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    AsyncImage(
-      model = plant.image_url,
-      contentDescription = plant.title,
-      contentScale = ContentScale.Crop,
+    Box(
       modifier = Modifier
         .size(160.dp)
         .clip(RoundedCornerShape(16.dp))
+        .background(Gray100)
         .clickable {
           onClickItem(plant)
         }
-    )
+    ) {
+      if (isImageLoadError.value != true) {
+        AsyncImage(
+          model = plant.image_url,
+          contentDescription = plant.title,
+          contentScale = ContentScale.Crop,
+          modifier = Modifier
+            .fillMaxSize()
+            .placeholder(
+              visible = isImageLoadError.value == null,
+              highlight = PlaceholderHighlight.shimmer(),
+            ),
+          onLoading = {
+            isImageLoadError.value = null
+          },
+          onError = {
+            isImageLoadError.value = true
+          },
+          onSuccess = {
+            isImageLoadError.value = false
+          }
+        )
+      } else {
+        Image(
+          painter = painterResource(id = R.drawable.ic_gallery_broken),
+          modifier = Modifier
+            .align(Alignment.Center)
+            .size(64.dp)
+            .padding(16.dp),
+          contentDescription = null,
+          colorFilter = ColorFilter.tint(Gray400)
+        )
+      }
+    }
     Spacer(modifier = Modifier.height(4.dp))
     Text(
       modifier = Modifier.clickable(

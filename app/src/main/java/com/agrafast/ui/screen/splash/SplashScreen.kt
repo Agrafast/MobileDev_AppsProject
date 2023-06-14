@@ -40,6 +40,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 fun SplashScreen(
   appState: AppState,
   authViewModel: AuthViewModel,
+  viewModel: SplashViewModel = hiltViewModel(),
 ) {
   // State
   val userState = authViewModel.userState.collectAsState()
@@ -48,29 +49,33 @@ fun SplashScreen(
     animateLottieCompositionAsState(composition = composition)
   val lottieFinishedState = remember { mutableStateOf(false) }
   val routeState = remember { mutableStateOf(Screen.Profil.route) }
+  val showOnBoardingState = viewModel.showOnBoardingState.collectAsState()
 
 
   // SideEffects
   LaunchedEffect(Unit) {
     authViewModel.checkSession()
-//    viewModel.signIn()
+    viewModel.getIsFirstOpenStatus()
   }
-  LaunchedEffect(userState.value) {
-    if (userState.value is AuthState.Authenticated) {
+  LaunchedEffect(userState.value, showOnBoardingState.value) {
+    if (showOnBoardingState.value) {
+      routeState.value = Screen.OnBoarding.route
+      return@LaunchedEffect
+    } else if (userState.value is AuthState.Authenticated) {
       routeState.value = Screen.Home.route
-    } else if(userState.value is AuthState.Unauthenticated){
+    } else if (userState.value is AuthState.Unauthenticated) {
       routeState.value = Screen.Login.route
     }
   }
   // Launch when animation Finished and fetch UserDataFinished
-  LaunchedEffect(lottieFinishedState.value, routeState.value){
-    if(lottieFinishedState.value && userState.value !is AuthState.Loading){
-    appState.navController.navigate(routeState.value) {
-      popUpTo(Screen.Splash.route) {
-        inclusive = true
+  LaunchedEffect(lottieFinishedState.value, routeState.value) {
+    if (lottieFinishedState.value && userState.value !is AuthState.Loading) {
+      appState.navController.navigate(routeState.value) {
+        popUpTo(Screen.Splash.route) {
+          inclusive = true
+        }
       }
     }
-  }
   }
   Box(
     modifier = Modifier

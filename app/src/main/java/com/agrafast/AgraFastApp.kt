@@ -54,6 +54,7 @@ import com.agrafast.ui.screen.plant.PlantListScreen
 import com.agrafast.ui.screen.profil.ProfileScreen
 import com.agrafast.ui.screen.profil.UpdateProfileScreen
 import com.agrafast.ui.screen.profil.UpdateType
+import com.agrafast.ui.screen.splash.OnBoardingScreen
 import com.agrafast.ui.screen.splash.SplashScreen
 import com.agrafast.ui.screen.usersplant.UserPlantListScreen
 import com.agrafast.ui.theme.AgraFastTheme
@@ -122,6 +123,9 @@ fun AgraFastApp(
     ) {
       composable(route = Screen.Splash.route) {
         SplashScreen(appState = appState, authViewModel = authViewModel)
+      }
+      composable(route = Screen.OnBoarding.route) {
+        OnBoardingScreen(appState = appState)
       }
       composable(Screen.Login.route) {
         LoginScreen(appState = appState, authViewModel = authViewModel)
