@@ -54,9 +54,6 @@ fun PlantListScreen(
 ) {
   val plants = sharedViewModel.getTutorialPlants()
   var plantsState by remember { mutableStateOf(plants) }
-//  val searchValue: MutableState<String> =
-//    remember { mutableStateOf(sharedViewModel.currentSearchQuery) }
-//  val selectedLevel: MutableState<ElevationLevel> = remember { mutableStateOf(ElevationLevel.BOTH) }
   val searchValue = sharedViewModel.currentSearchQuery
   val selectedLevel = sharedViewModel.currentSelectedElevattion
 
@@ -73,7 +70,6 @@ fun PlantListScreen(
         true
       ) or plant.botanical_name.contains(searchValue, true)
     }
-    Log.d("TAG", "PlantListScreen: filtered ${filtered.size}")
   }
   Surface {
     LazyColumn(

@@ -110,6 +110,7 @@ dependencies {
 
   // Accompanist
   implementation 'com.google.accompanist:accompanist-permissions:0.24.13-rc'
+  implementation "com.google.accompanist:accompanist-placeholder-material:0.31.3-beta"
 
   // Location
   implementation 'com.google.android.gms:play-services-location:21.0.1'
